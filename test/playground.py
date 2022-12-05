@@ -20,6 +20,7 @@ meld = Meld(type=Mentsu.ANKAN)
 print(repr(meld))
 
 wall = Wall(seed=0)
+wall.construct()
 wall.reveal_kandora()
 print([str(f) for f in wall.dora()])
 print([str(f) for f in wall.uradora()])

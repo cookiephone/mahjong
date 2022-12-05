@@ -1,3 +1,6 @@
+from mahjong.tiles import Faces
+
+
 class Seat(int):
 
     SEAT_STRINGS = {
@@ -8,6 +11,17 @@ class Seat(int):
     def __new__(cls, value):
         return super().__new__(cls, value)
     
+    def as_wind(self):
+        match self:
+            case 0:
+                return Faces.EAST
+            case 1:
+                return Faces.SOUTH
+            case 2:
+                return Faces.WEST
+            case 3:
+                return Faces.NORTH
+
     def is_absolute(self):
         return self < 4
     
@@ -17,7 +31,7 @@ class Seat(int):
     def apply(self, relative):
         seat = (self + relative) % 4
         if self.is_relative():
-            seat = seat + 4
+            seat += 4
         return seat
 
     def __add__(self, other):

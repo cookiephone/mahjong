@@ -106,3 +106,6 @@ class Tile():
 
     def  __repr__(self):
         return f"Tile({self.uid=}, {self.face=})"
+
+    def __eq__(self, other):
+        return self.uid == other.uid

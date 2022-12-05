@@ -6,8 +6,13 @@ import random
 class Wall:
 
     def __init__(self, seed=None, akadora=True):
-        self.tiles = self.__class__.get_tiles(akadora)
-        self.__class__.shuffle_tiles(self.tiles, seed=seed)
+        self.seed = seed
+        self.akadora = akadora
+        random.seed(self.seed)
+
+    def construct(self):
+        self.get_tiles()
+        self.shuffle_tiles()
         self.dora_indicators = [self.tiles[i] for i in [5, 7, 9, 11, 13]]
         self.uradora_indicators = [self.tiles[i] for i in [4, 6, 8, 10, 12]]
         self.ndora_revealed = 1
@@ -35,18 +40,15 @@ class Wall:
         if self.ndora_revealed < 5:
             self.ndora_revealed += 1
 
-    @staticmethod
-    def shuffle_tiles(tiles, seed=None):
-        random.seed(seed)
-        random.shuffle(tiles)
+    def shuffle_tiles(self):
+        random.shuffle(self.tiles)
 
-    @staticmethod
-    def get_tiles(akadora=True):
-        if akadora:
+    def get_tiles(self):
+        if self.akadora:
             tilestring = parsing.ALL_TILES
         else:
             tilestring = parsing.ALL_TILES_NO_AKA
         tiles = parsing.tileset_from_string(tilestring)
         for i, tile in enumerate(tiles):
             tile.uid = i
-        return tiles
+        self.tiles = tiles
