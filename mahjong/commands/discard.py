@@ -11,3 +11,6 @@ class CmdDiscard(Command):
     def execute(self, state):
         self.player.hand.remove(self.tile)
         self.player.discards.append(self.tile)
+
+    def valid(self, state):
+        return True #TODO

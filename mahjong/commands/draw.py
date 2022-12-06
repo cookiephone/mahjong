@@ -11,3 +11,6 @@ class CmdDraw(Command):
     def execute(self, state):
         tile = state.wall.draw(deadwall=self.deadwall)
         self.player.hand.append(tile)
+
+    def valid(self, state):
+        return True #TODO

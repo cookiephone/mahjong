@@ -10,3 +10,7 @@ class Command(ABC):
     @abstractmethod
     def execute(self, state):
         raise NotImplementedError
+
+    @abstractmethod
+    def valid(self, state):
+        raise NotImplementedError

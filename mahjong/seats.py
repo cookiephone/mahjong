@@ -1,55 +1,51 @@
 from mahjong.tiles import Faces
 
 
-class Seat(int):
+STR_SEAT_EAST = "EAST"
+STR_SEAT_SOUTH = "SOUTH"
+STR_SEAT_WEST = "WEST"
+STR_SEAT_NORTH = "NORTH"
+STR_SEAT_SELF = "SELF"
+STR_SEAT_SHIMOCHA = "SHIMOCHA"
+STR_SEAT_TOIMEN = "TOIMEN"
+STR_SEAT_KAMICHA = "KAMICHA"
 
-    SEAT_STRINGS = {
-        0: "east", 1: "south", 2: "west", 3: "north",
-        4: "self", 5: "shimocha", 6: "toimen", 7: "kamicha",
-    }
+STRS_ABSOLUTE_SEATS = [STR_SEAT_EAST, STR_SEAT_SOUTH, STR_SEAT_WEST, STR_SEAT_NORTH]
+STRS_RELATIVE_SEATS = [STR_SEAT_SELF, STR_SEAT_SHIMOCHA, STR_SEAT_TOIMEN, STR_SEAT_KAMICHA]
 
-    def __new__(cls, value):
-        return super().__new__(cls, value)
-    
-    def as_wind(self):
-        match self:
-            case 0:
-                return Faces.EAST
-            case 1:
-                return Faces.SOUTH
-            case 2:
-                return Faces.WEST
-            case 3:
-                return Faces.NORTH
+NAME2ID = {
+    STR_SEAT_EAST: 0, STR_SEAT_SOUTH: 1, STR_SEAT_WEST: 2, STR_SEAT_NORTH: 3, 
+    STR_SEAT_SELF: 4, STR_SEAT_SHIMOCHA: 5, STR_SEAT_TOIMEN: 6, STR_SEAT_KAMICHA: 7
+}
+ID2NAME = {v: k for k, v in NAME2ID.items()}
 
-    def is_absolute(self):
-        return self < 4
-    
-    def is_relative(self):
-        return self >= 4
 
-    def apply(self, relative):
-        seat = (self + relative) % 4
-        if self.is_relative():
-            seat += 4
-        return seat
+class SeatType(type):
 
-    def __add__(self, other):
-        return self.__class__(super().__add__(other))
-    
-    def __mod__(self, other):
-        return self.__class__(super().__mod__(other))
+    def __getattr__(cls, name):
+        if name in STRS_ABSOLUTE_SEATS:
+            seat = cls.__new__(cls)
+            seat.__init__(name)
+            return seat
+        raise AttributeError(name)
+
+
+class Seat(metaclass=SeatType):
+
+    def __init__(self, name):
+        self.name = name
+        self.id = NAME2ID[self.name]
+
+    def __getattr__(self, name):
+        if name in STRS_RELATIVE_SEATS:
+            return Seat(ID2NAME[(self.id + NAME2ID[name]) % 4])
+        raise AttributeError(name)
+
+    def __hash__(self):
+        return hash(self.id)
+
+    def __eq__(self, other):
+        return self.id == other.id
 
     def __str__(self):
-        return self.__class__.SEAT_STRINGS[self]
-
-
-Seat.EAST = Seat(0)
-Seat.SOUTH = Seat(1)
-Seat.WEST = Seat(2)
-Seat.NORTH = Seat(3)
-
-Seat.SELF = Seat(4)
-Seat.SHIMOCHA = Seat(5)
-Seat.TOIMEN = Seat(6)
-Seat.KAMICHA = Seat(7)
+        return self.name.lower()
