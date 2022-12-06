@@ -10,6 +10,9 @@ from mahjong.game import GameState
 from mahjong.utils.parsing import tileset_from_string, tileset_to_string
 from mahjong.utils.debug import gamestate_vis_string
 
+
+print(Seat.EAST.TOIMEN)
+
 seed = 0
 
 game = GameState(seed=seed)
