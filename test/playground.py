@@ -7,22 +7,37 @@ from mahjong.seats import Seat
 from mahjong.melds import Meld, Mentsu
 from mahjong.wall import Wall
 from mahjong.game import GameState
+from mahjong.engine import Engine
 from mahjong.utils.parsing import tileset_from_string, tileset_to_string
 from mahjong.utils.debug import gamestate_vis_string
 
 
-print(Seat.EAST.TOIMEN)
-
 seed = 0
 
-game = GameState(seed=seed)
-game.wall.construct()
-wall = Wall(seed=seed)
+engine = Engine(seed=seed)
+engine.gamestate.init_hand()
+wall = Wall()
 wall.construct()
 ndiscards = [15, 17, 14, 14]
-for i, player in enumerate(game.players):
+for i, player in enumerate(engine.gamestate.hands[-1].players):
     player.hand = [wall.draw() for _ in range(13)]
     player.discards = [wall.draw() for _ in range(ndiscards[i])]
-game.players[0].hand.append(wall.draw())
+engine.gamestate.hands[-1].players[0].hand.append(wall.draw())
+nfromhand = lambda hand, n: [hand.pop() for _ in range(n)]
+tiles = nfromhand(engine.gamestate.hands[-1].players[0].hand, 3)
+meld = Meld(type=Mentsu.MINJUN, tiles=tiles, called_tile=tiles[0], called_seat=Seat.EAST)
+engine.gamestate.hands[-1].players[0].called_melds.append(meld)
+tiles = nfromhand(engine.gamestate.hands[-1].players[0].hand, 3)
+meld = Meld(type=Mentsu.MINKOU, tiles=tiles, called_tile=tiles[1], called_seat=Seat.SOUTH)
+engine.gamestate.hands[-1].players[0].called_melds.append(meld)
+tiles = nfromhand(engine.gamestate.hands[-1].players[2].hand, 4)
+meld = Meld(type=Mentsu.MINKAN, tiles=tiles, called_tile=tiles[2], called_seat=Seat.WEST)
+engine.gamestate.hands[-1].players[2].called_melds.append(meld)
+tiles = nfromhand(engine.gamestate.hands[-1].players[3].hand, 4)
+meld = Meld(type=Mentsu.SHOUMINKAN, tiles=tiles, called_tile=tiles[3], called_seat=Seat.NORTH)
+engine.gamestate.hands[-1].players[3].called_melds.append(meld)
+tiles = nfromhand(engine.gamestate.hands[-1].players[3].hand, 4)
+meld = Meld(type=Mentsu.ANKAN, tiles=tiles)
+engine.gamestate.hands[-1].players[3].called_melds.append(meld)
 
-print(gamestate_vis_string(game))
+print(gamestate_vis_string(engine.gamestate))

@@ -24,6 +24,7 @@
     "suukaikan": true,
     "suucha_riichi": true,
     "sanchahou": false,
+    "suukaikan_after_discard": true,
     "continuation_on_abortion": true,
     "agari_yame": "1st",
     "tenpai_yame": "never",

@@ -1,19 +1,17 @@
 import mahjong.rules as rules
-from mahjong.tiles import Faces
-from mahjong.seats import Seat
-from mahjong.wall import Wall
-from mahjong.players import Player
+from mahjong.hand import Hand
+from random import Random
 
 
 class GameState:
 
     def __init__(self, seed=None, ruleset="default"):
+        self.seed = seed
+        self.rng = Random(self.seed)
         self.rule_context = rules.get_ruleset_context(ruleset)
-        self.wall = Wall(seed, akadora=self.rule_context.aka_dora)
-        self.round_wind = Faces.EAST
-        self.players = []
-        for seat in [Seat.EAST, Seat.SOUTH, Seat.WEST, Seat.NORTH]:
-            player = Player(self.rule_context, seat)
-            self.players.append(player)
-        self.dealer = self.players[0]
-        self.history = []
+        self.command_history = []
+        self.hands = []
+
+    #TODO turn this into starthand command effect later
+    def init_hand(self):
+        self.hands.append(Hand(self))
