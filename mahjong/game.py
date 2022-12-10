@@ -9,8 +9,9 @@ class GameState:
         self.seed = seed
         self.rng = Random(self.seed)
         self.rule_context = rules.get_ruleset_context(ruleset)
-        self.command_history = []
         self.hands = []
+        self.history = []
+        self.current_hand = None
 
     #TODO turn this into starthand command effect later
     def init_hand(self):

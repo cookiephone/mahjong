@@ -23,7 +23,7 @@ def gamestate_vis_string(state):
         for i, player in enumerate(state.hands[-1].players):
             for meld in player.called_melds:
                 tilestrs = pad(tiles_to_strs(meld.tiles), 4, "  ")
-                tilestrs.append(f"{VIS_STR_SEAT[meld.called_seat]}[{VIS_STR_FACES[meld.called_tile.face]}]" if meld.called_tile else "     ")
+                tilestrs.append(f"{VIS_STR_SEAT[meld.called_player.seat]}[{VIS_STR_FACES[meld.called_tile.face]}]" if meld.called_tile else "     ")
                 melds[i].append(tilestrs)
             melds[i] = pad(melds[i], 4, pad([], 4, "  ") + ["     "])
         return (

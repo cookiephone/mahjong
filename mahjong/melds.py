@@ -37,11 +37,16 @@ class Mentsu(Flag):
 
 class Meld:
 
-    def __init__(self, type=None, tiles=None, called_tile=None, called_seat=None):
+    def __init__(self, type=None, tiles=None, called_tile=None, called_player=None):
         self.type = type
         self.tiles = tiles
         self.called_tile = called_tile
-        self.called_seat = called_seat
+        self.called_player = called_player
+
+    def into_added_kan(self, tile):
+        if Mentsu.MINKOU in self.type:
+            self.tiles.append(tile)
+            self.type = Mentsu.SHOUMINKAN
 
     def is_chii(self):
         return Mentsu.CHII in self.type
@@ -65,4 +70,4 @@ class Meld:
         return str(self.type)
 
     def __repr__(self):
-        return f"Meld({self.type=}, {self.tiles=}, {self.called_tile=}, {self.called_seat=})"
+        return f"Meld({self.type=}, {self.tiles=}, {self.called_tile=}, {self.called_player=})"

@@ -26,3 +26,8 @@ class Hand:
         for player in self.players:
             if player.seat == Seat.EAST:
                 return player
+
+    def get_player(self, seat):
+        for player in self.players:
+            if player.seat == seat:
+                return player
