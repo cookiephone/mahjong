@@ -1,7 +1,9 @@
+from mahjong.utils.inheritdecoratormixin import InheritDecoratorMixin
 from abc import ABC, abstractmethod
+from functools import cache
 
 
-class Command(ABC):
+class Command(ABC, InheritDecoratorMixin):
 
     @abstractmethod
     def __init__(self, name):
@@ -12,5 +14,6 @@ class Command(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    @InheritDecoratorMixin.inheritable_decorator(cache)
     def valid(self, state):
         raise NotImplementedError

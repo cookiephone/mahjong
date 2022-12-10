@@ -8,8 +8,15 @@ from mahjong.melds import Meld, Mentsu
 from mahjong.wall import Wall
 from mahjong.game import GameState
 from mahjong.engine import Engine
+from mahjong.commands.ron import CmdRon
 from mahjong.utils.parsing import tileset_from_string, tileset_to_string
 from mahjong.utils.debug import gamestate_vis_string
+
+
+
+cmd = CmdRon(None)
+cmd.valid(None)
+exit()
 
 
 seed = 0
