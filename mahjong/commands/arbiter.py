@@ -3,10 +3,8 @@ from mahjong.commands.pon import CmdPon
 from mahjong.commands.kan import CmdKan, CmdAddedKan
 from mahjong.commands.ron import CmdRon
 from mahjong.commands.endhand import CmdEndHand
+from mahjong.utils import helpers
 
-
-def _filter_by_type(commands, types, negative=False):
-    return [cmd for cmd in commands if isinstance(cmd, types) ^ negative]
 
 def _handle_multi_ron(state, batch):
     rule = state.rule_context.double_ron if len(batch) == 2 else state.rule_context.triple_ron
@@ -21,7 +19,7 @@ def _handle_multi_ron(state, batch):
             return [CmdEndHand()]
 
 def rule_ron_priority(state, batch):
-    ron_commands = _filter_by_type(batch, CmdRon)
+    ron_commands = helpers.filter_commands_by_type(batch, CmdRon)
     match len(ron_commands):
         case 0:
             pass
@@ -31,10 +29,10 @@ def rule_ron_priority(state, batch):
             return _handle_multi_ron(state, ron_commands)
 
 def rule_pon_kan_priority(state, batch):
-    pon_kan_commands = _filter_by_type(batch, (CmdPon, CmdKan, CmdAddedKan))
+    pon_kan_commands = helpers.filter_commands_by_type(batch, (CmdPon, CmdKan, CmdAddedKan))
     if not pon_kan_commands:
         return batch
-    return _filter_by_type(batch, CmdChii, negative=True)
+    return helpers.filter_commands_by_type(batch, CmdChii, negative=True)
 
 def filter_command_batch(state, batch):
     rules = [rule_ron_priority, rule_pon_kan_priority]

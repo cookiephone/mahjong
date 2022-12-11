@@ -15,3 +15,4 @@ class Engine:
         batch = arbiter.filter_command_batch(batch)
         for cmd in batch:
             cmd.execute(self.gamestate)
+        self.gamestate.history.append(batch)

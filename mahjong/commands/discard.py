@@ -1,5 +1,6 @@
 from mahjong.commands.command import Command
 from mahjong.commands.kan import CmdKan, CmdAddedKan
+from mahjong.utils import helpers
 
 
 #TODO: handle suufon renda
@@ -22,6 +23,5 @@ class CmdDiscard(Command):
     @staticmethod
     def _handle_kandora(state):
         if state.rule_context.kan_dora:
-            for cmd in state.history[-1]:
-                if isinstance(cmd, CmdKan) or isinstance(cmd, CmdAddedKan):
+            if helpers.filter_commands_by_type(state.history[-1], (CmdKan, CmdAddedKan)):
                     state.current_hand.wall.reveal_kandora()
