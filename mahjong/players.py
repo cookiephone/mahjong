@@ -6,3 +6,6 @@ class Player:
         self.discards = []
         self.hand = []
         self.called_melds = []
+
+    def __eq__(self, other):
+        return self.seat == other.seat

@@ -22,6 +22,6 @@ class CmdDiscard(Command):
     @staticmethod
     def _handle_kandora(state):
         if state.rule_context.kan_dora:
-            last_cmd = state.history[-1]
-            if isinstance(last_cmd, CmdKan) or isinstance(last_cmd, CmdAddedKan):
-                state.current_hand.wall.reveal_kandora()
+            for cmd in state.history[-1]:
+                if isinstance(cmd, CmdKan) or isinstance(cmd, CmdAddedKan):
+                    state.current_hand.wall.reveal_kandora()

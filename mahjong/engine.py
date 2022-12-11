@@ -11,7 +11,7 @@ class Engine:
         commands = [] #TODO build all potentially valid commands
         return [cmd for cmd in commands if cmd.valid(self.gamestate)]
 
-    def submit(self, commands):
-        commands = arbiter.filter_commands(commands)
-        for cmd in commands:
+    def submit(self, batch):
+        batch = arbiter.filter_command_batch(batch)
+        for cmd in batch:
             cmd.execute(self.gamestate)

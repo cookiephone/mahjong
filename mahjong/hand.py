@@ -31,3 +31,6 @@ class Hand:
         for player in self.players:
             if player.seat == seat:
                 return player
+    
+    def bump_order(self, player):
+        return [player, self.get_player(player.seat.SHIMOCHA), self.get_player(player.seat.TOIMEN),  self.get_player(player.seat.KAMICHA)]
