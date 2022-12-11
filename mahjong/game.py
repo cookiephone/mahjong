@@ -12,7 +12,3 @@ class GameState:
         self.hands = []
         self.history = []
         self.current_hand = None
-
-    #TODO turn this into starthand command effect later
-    def init_hand(self):
-        self.hands.append(Hand(self))

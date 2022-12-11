@@ -9,20 +9,15 @@ from mahjong.wall import Wall
 from mahjong.game import GameState
 from mahjong.engine import Engine
 from mahjong.commands.ron import CmdRon
+from mahjong.commands.starthand import CmdStartHand
 from mahjong.utils.parsing import tileset_from_string, tileset_to_string
 from mahjong.utils.debug import gamestate_vis_string
-
-
-
-cmd = CmdRon(None)
-cmd.valid(None)
-exit()
 
 
 seed = 0
 
 engine = Engine(seed=seed)
-engine.gamestate.init_hand()
+CmdStartHand().execute(engine.gamestate)
 wall = Wall()
 wall.construct()
 ndiscards = [15, 17, 14, 14]
