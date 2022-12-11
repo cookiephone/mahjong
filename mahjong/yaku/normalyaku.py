@@ -26,4 +26,4 @@ from mahjong.yaku.tsumo import Tsumo
 from mahjong.yaku.yakuhai import Yakuhai
 
 
-NORMAL_YAKU = [Chankan, Chanta, Chiitoi, Chinitsu, DaburuRiichi, Haitei, Honitsu, Honroutou, Houtei, Iipeikou, Ippatsu, Ittsuu, Junchan, Pinfu, Riichi, RinshanKaihou, Ryanpeikou, Sanankou, Sankantsu, Sanshiki, SanshokuDoukou, Shousangen, Tanyao, Toitoi, Tsumo, Yakuhai]
+NORMAL_YAKU = {Chankan, Chanta, Chiitoi, Chinitsu, DaburuRiichi, Haitei, Honitsu, Honroutou, Houtei, Iipeikou, Ippatsu, Ittsuu, Junchan, Pinfu, Riichi, RinshanKaihou, Ryanpeikou, Sanankou, Sankantsu, Sanshiki, SanshokuDoukou, Shousangen, Tanyao, Toitoi, Tsumo, Yakuhai}

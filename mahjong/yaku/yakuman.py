@@ -13,4 +13,4 @@ from mahjong.yaku.tenhou import Tenhou
 from mahjong.yaku.tsuuiisou import Tsuuiisou
 
 
-YAKUMAN = [KazoeYakuman, KokushiMusou, Suuankou, Daisangen, Shousuushii, Daisuushii, Tsuuiisou, Chinroutou, Ryuuiisou, ChuurenPoutou, Suukantsu, Tenhou, Chiihou]
+YAKUMAN = {KazoeYakuman, KokushiMusou, Suuankou, Daisangen, Shousuushii, Daisuushii, Tsuuiisou, Chinroutou, Ryuuiisou, ChuurenPoutou, Suukantsu, Tenhou, Chiihou}
