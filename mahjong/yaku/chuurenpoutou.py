@@ -11,3 +11,6 @@ class ChuurenPoutou(Yaku):
     value_closed = None
     yakuman = True
     disables = NORMAL_YAKU
+
+    def applies(self, state, player):
+        pass #TODO

@@ -10,3 +10,6 @@ class Chinitsu(Yaku):
     value_closed = 6
     yakuman = False
     disables = []
+
+    def applies(self, state, player):
+        pass #TODO

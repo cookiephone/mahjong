@@ -37,3 +37,7 @@ class Yaku(ABC):
     @abstractmethod
     def disables(self):
         pass
+
+    @abstractmethod
+    def applies(self, state, player):
+        raise NotImplementedError

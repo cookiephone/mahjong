@@ -10,3 +10,6 @@ class Sanshiki(Yaku):
     value_closed = 2
     yakuman = False
     disables = []
+
+    def applies(self, state, player):
+        pass #TODO

@@ -10,3 +10,6 @@ class KazoeYakuman(Yaku):
     value_closed = None
     yakuman = True
     disables = []
+
+    def applies(self, state, player):
+        pass #TODO

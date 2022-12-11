@@ -12,3 +12,6 @@ class Daisuushii(Yaku):
     value_closed = None
     yakuman = True
     disables = NORMAL_YAKU + [Shousuushii]
+
+    def applies(self, state, player):
+        pass #TODO
