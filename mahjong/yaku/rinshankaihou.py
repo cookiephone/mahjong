@@ -10,6 +10,7 @@ class RinshanKaihou(Yaku):
     value_closed = 1
     yakuman = False
     disables = []
+    enables = []
 
     def applies(self, state, player):
         pass #TODO

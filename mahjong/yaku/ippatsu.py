@@ -1,4 +1,5 @@
 from mahjong.yaku.yaku import Yaku
+from mahjong.yaku.riichi import Riichi
 
 
 class Ippatsu(Yaku):
@@ -10,6 +11,7 @@ class Ippatsu(Yaku):
     value_closed = 1
     yakuman = False
     disables = []
+    enables = [Riichi]
 
     def applies(self, state, player):
         pass #TODO

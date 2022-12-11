@@ -11,6 +11,7 @@ class Ryanpeikou(Yaku):
     value_closed = 3
     yakuman = False
     disables = [Iipeikou]
+    enables = []
 
     def applies(self, state, player):
         pass #TODO

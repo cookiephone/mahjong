@@ -1,4 +1,5 @@
 from mahjong.yaku.yaku import Yaku
+from mahjong.yaku.normalyaku import NORMAL_YAKU
 
 
 class KazoeYakuman(Yaku):
@@ -10,6 +11,7 @@ class KazoeYakuman(Yaku):
     value_closed = None
     yakuman = True
     disables = []
+    enables = NORMAL_YAKU
 
     def applies(self, state, player):
         pass #TODO

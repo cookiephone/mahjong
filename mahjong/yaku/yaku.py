@@ -1,7 +1,9 @@
+from mahjong.utils.inheritdecoratormixin import InheritDecoratorMixin
 from abc import ABC, abstractmethod
+from functools import cache
 
 
-class Yaku(ABC):
+class Yaku(ABC, metaclass=InheritDecoratorMixin):
 
     @property
     @abstractmethod
@@ -38,6 +40,12 @@ class Yaku(ABC):
     def disables(self):
         pass
 
+    @property
     @abstractmethod
+    def enables(self):
+        pass
+
+    @abstractmethod
+    @InheritDecoratorMixin.inheritable_decorator(cache)
     def applies(self, state, player):
         raise NotImplementedError

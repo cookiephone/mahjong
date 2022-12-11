@@ -10,6 +10,7 @@ class Ittsuu(Yaku):
     value_closed = 2
     yakuman = False
     disables = []
+    enables = []
 
     def applies(self, state, player):
         pass #TODO

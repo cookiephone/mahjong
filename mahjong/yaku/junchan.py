@@ -10,6 +10,7 @@ class Junchan(Yaku):
     value_closed = 3
     yakuman = False
     disables = []
+    enables = []
 
     def applies(self, state, player):
         pass #TODO
