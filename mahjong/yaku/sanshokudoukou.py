@@ -9,8 +9,8 @@ class SanshokuDoukou(Yaku):
     value_open = 2
     value_closed = 2
     yakuman = False
-    disables = []
-    enables = []
+    disables = {}
+    enables = {}
 
     def applies(self, state, player):
         pass #TODO

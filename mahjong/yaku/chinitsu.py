@@ -9,8 +9,8 @@ class Chinitsu(Yaku):
     value_open = 5
     value_closed = 6
     yakuman = False
-    disables = []
-    enables = []
+    disables = {}
+    enables = {}
 
     def applies(self, state, player):
         pass #TODO

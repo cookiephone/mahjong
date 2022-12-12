@@ -10,8 +10,8 @@ class Ippatsu(Yaku):
     value_open = 0
     value_closed = 1
     yakuman = False
-    disables = []
-    enables = [Riichi]
+    disables = {}
+    enables = {Riichi}
 
     def applies(self, state, player):
         pass #TODO

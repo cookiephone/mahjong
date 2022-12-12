@@ -10,7 +10,7 @@ class KazoeYakuman(Yaku):
     value_open = None
     value_closed = None
     yakuman = True
-    disables = []
+    disables = {}
     enables = NORMAL_YAKU
 
     def applies(self, state, player):

@@ -11,7 +11,7 @@ class Ryuuiisou(Yaku):
     value_closed = None
     yakuman = True
     disables = NORMAL_YAKU
-    enables = []
+    enables = {}
 
     def applies(self, state, player):
         pass #TODO

@@ -10,8 +10,8 @@ class Ryanpeikou(Yaku):
     value_open = 0
     value_closed = 3
     yakuman = False
-    disables = [Iipeikou]
-    enables = []
+    disables = {Iipeikou}
+    enables = {}
 
     def applies(self, state, player):
         pass #TODO

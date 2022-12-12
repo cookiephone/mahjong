@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from functools import cache
 
 
-class Yaku(ABC, metaclass=InheritDecoratorMixin):
+class Yaku(ABC, InheritDecoratorMixin):
 
     @property
     @abstractmethod

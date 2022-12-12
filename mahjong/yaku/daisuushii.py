@@ -1,6 +1,6 @@
 from mahjong.yaku.yaku import Yaku
-from mahjong.yaku.normalyaku import NORMAL_YAKU
 from mahjong.yaku.shousuushii import Shousuushii
+from mahjong.yaku.normalyaku import NORMAL_YAKU
 
 
 class Daisuushii(Yaku):
@@ -11,8 +11,8 @@ class Daisuushii(Yaku):
     value_open = None
     value_closed = None
     yakuman = True
-    disables = NORMAL_YAKU + [Shousuushii]
-    enables = []
+    disables = NORMAL_YAKU | {Shousuushii}
+    enables = {}
 
     def applies(self, state, player):
         pass #TODO
