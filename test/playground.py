@@ -13,6 +13,11 @@ from mahjong.commands.starthand import CmdStartHand
 from mahjong.utils.parsing import tileset_from_string, tileset_to_string
 from mahjong.utils.debug import gamestate_vis_string
 
+import visualizer.visualizer as vis
+
+
+vis.run()
+exit()
 
 seed = 0
 
