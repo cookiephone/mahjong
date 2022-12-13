@@ -1,1 +1,1 @@
-arcade==2.6.16  # TODO: make extra later
+arcade>=2.6.16  # TODO: make extra later
