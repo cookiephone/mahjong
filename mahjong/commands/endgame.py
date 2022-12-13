@@ -7,7 +7,7 @@ class CmdEndGame(Command):
         super().__init__("end game")
 
     def execute(self, state):
-        pass #TODO
+        pass  # TODO
 
     def valid(self, state):
-        return True #TODO
+        return True  # TODO

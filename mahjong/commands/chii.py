@@ -13,11 +13,11 @@ class CmdChii(Command):
     def execute(self, state):
         called_tile = self.called_player.discards.pop()
         meld = Meld(
-            type=Mentsu.MINJUN,
+            variant=Mentsu.MINJUN,
             tiles=self.tiles,
             called_tile=called_tile,
             called_player=self.called_player)
         self.player.called_melds.append(meld)
 
     def valid(self, state):
-        return True #TODO
+        return True  # TODO

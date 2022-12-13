@@ -1,6 +1,6 @@
-from mahjong.yaku.allyaku import ALL_YAKU
 from graphlib import TopologicalSorter
 from collections import defaultdict
+from mahjong.yaku.allyaku import ALL_YAKU
 
 
 YAKU_DISABLE_GRAPH = defaultdict(list)

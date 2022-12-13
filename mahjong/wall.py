@@ -1,12 +1,17 @@
-import mahjong.utils.parsing as parsing
-import mahjong.dora as dora
 import random
+from mahjong.utils import parsing
+from mahjong import dora
 
 
 class Wall:
 
     def __init__(self, akadora=True):
         self.akadora = akadora
+        self.dora_indicators = None
+        self.uradora_indicators = None
+        self.ndora_revealed = None
+        self.remaining = None
+        self.tiles = None
 
     def construct(self, rng=None):
         self.get_tiles()

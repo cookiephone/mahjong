@@ -1,6 +1,3 @@
-from mahjong.tiles import Faces
-
-
 STR_SEAT_EAST = "EAST"
 STR_SEAT_SOUTH = "SOUTH"
 STR_SEAT_WEST = "WEST"
@@ -49,7 +46,7 @@ class SeatType(type):
         getattr(cls, STR_SEAT_WEST).__init__(STR_SEAT_WEST)
         setattr(cls, STR_SEAT_NORTH, cls.__new__(cls))
         getattr(cls, STR_SEAT_NORTH).__init__(STR_SEAT_NORTH)
-        return super().__init__(name, bases, attrs)
+        super().__init__(name, bases, attrs)
 
 
 class Seat(metaclass=SeatType):

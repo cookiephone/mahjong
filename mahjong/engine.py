@@ -8,11 +8,11 @@ class Engine:
         self.gamestate = GameState(seed=seed, ruleset=ruleset)
 
     def commands(self):
-        commands = [] #TODO build all potentially valid commands
+        commands = []  # TODO build all potentially valid commands
         return [cmd for cmd in commands if cmd.valid(self.gamestate)]
 
     def submit(self, batch):
-        batch = arbiter.filter_command_batch(batch)
+        batch = arbiter.filter_command_batch(self.gamestate, batch)
         for cmd in batch:
             cmd.execute(self.gamestate)
         self.gamestate.history.append(batch)

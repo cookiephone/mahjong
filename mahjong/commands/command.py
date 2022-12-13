@@ -1,6 +1,6 @@
-from mahjong.utils.inheritdecoratormixin import InheritDecoratorMixin
 from abc import ABC, abstractmethod
 from functools import cache
+from mahjong.utils.inheritdecoratormixin import InheritDecoratorMixin
 
 
 class Command(ABC, InheritDecoratorMixin):

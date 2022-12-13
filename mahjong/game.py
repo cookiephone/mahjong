@@ -1,6 +1,5 @@
-import mahjong.rules as rules
-from mahjong.hand import Hand
 from random import Random
+from mahjong import rules
 
 
 class GameState:

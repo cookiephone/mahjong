@@ -13,4 +13,4 @@ class CmdStartHand(Command):
         state.current_hand = hand
 
     def valid(self, state):
-        return True #TODO
+        return True  # TODO

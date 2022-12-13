@@ -21,5 +21,6 @@ class InheritDecoratorMixin:
             if getattr(obj, "inherit_decorator", False) and not name in cls._decorator_registry:
                 cls._decorator_registry[name] = obj.inherit_decorator
         for name, decorator in cls._decorator_registry.items():
-            if name in cls.__dict__ and getattr(getattr(cls, name), "inherit_decorator", None) != decorator:
+            if (name in cls.__dict__ and
+                getattr(getattr(cls, name), "inherit_decorator", None) != decorator):
                 setattr(cls, name, decorator(cls.__dict__[name]))

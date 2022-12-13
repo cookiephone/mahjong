@@ -7,7 +7,8 @@ from mahjong.utils import helpers
 
 
 def _handle_multi_ron(state, batch):
-    rule = state.rule_context.double_ron if len(batch) == 2 else state.rule_context.triple_ron
+    rule = state.rule_context.double_ron if len(
+        batch) == 2 else state.rule_context.triple_ron
     match rule:
         case "all":
             return batch
@@ -17,6 +18,7 @@ def _handle_multi_ron(state, batch):
             return next(cmd for player in bump_order for cmd in batch if cmd.player == player)
         case "cancel":
             return [CmdEndHand()]
+
 
 def rule_ron_priority(state, batch):
     ron_commands = helpers.filter_commands_by_type(batch, CmdRon)
@@ -28,11 +30,14 @@ def rule_ron_priority(state, batch):
         case 2 | 3:
             return _handle_multi_ron(state, ron_commands)
 
-def rule_pon_kan_priority(state, batch):
-    pon_kan_commands = helpers.filter_commands_by_type(batch, (CmdPon, CmdKan, CmdAddedKan))
+
+def rule_pon_kan_priority(_, batch):
+    pon_kan_commands = helpers.filter_commands_by_type(
+        batch, (CmdPon, CmdKan, CmdAddedKan))
     if not pon_kan_commands:
         return batch
     return helpers.filter_commands_by_type(batch, CmdChii, negative=True)
+
 
 def filter_command_batch(state, batch):
     rules = [rule_ron_priority, rule_pon_kan_priority]

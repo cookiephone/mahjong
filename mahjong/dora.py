@@ -48,7 +48,7 @@ LUT_DORA = {
 
 
 def dora(indicators):
-    dora = []
+    dora_faces = []
     for indicator in indicators:
-        dora.append(LUT_DORA[indicator.face])
-    return dora
+        dora_faces.append(LUT_DORA[indicator.face])
+    return dora_faces

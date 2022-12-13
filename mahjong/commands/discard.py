@@ -3,7 +3,7 @@ from mahjong.commands.kan import CmdKan, CmdAddedKan
 from mahjong.utils import helpers
 
 
-#TODO: handle suufon renda
+# TODO: handle suufon renda
 
 class CmdDiscard(Command):
 
@@ -18,7 +18,7 @@ class CmdDiscard(Command):
         self._handle_kandora(state)
 
     def valid(self, state):
-        return True #TODO
+        return True  # TODO
 
     @staticmethod
     def _handle_kandora(state):

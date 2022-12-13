@@ -11,4 +11,4 @@ class CmdKyuushuKyuuhai(Command):
         pass
 
     def valid(self, state):
-        return True #TODO
+        return True  # TODO

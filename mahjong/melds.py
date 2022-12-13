@@ -23,7 +23,7 @@ class Mentsu(Flag):
     SHOUMINKAN = KAN | OPEN | ADDED
 
     def __str__(self):
-        MENTSU_STRINGS = {
+        return {
             Mentsu.ANJUN: "chii (closed)",
             Mentsu.MINJUN: "chii (open)",
             Mentsu.ANKOU: "pon (closed)",
@@ -31,43 +31,42 @@ class Mentsu(Flag):
             Mentsu.ANKAN: "kan (closed)",
             Mentsu.MINKAN: "kan (open)",
             Mentsu.SHOUMINKAN: "kan (open, added)",
-        }
-        return MENTSU_STRINGS[self]
+        }[self]
 
 
 class Meld:
 
-    def __init__(self, type=None, tiles=None, called_tile=None, called_player=None):
-        self.type = type
+    def __init__(self, variant=None, tiles=None, called_tile=None, called_player=None):
+        self.variant = variant
         self.tiles = tiles
         self.called_tile = called_tile
         self.called_player = called_player
 
     def into_added_kan(self, tile):
-        if Mentsu.MINKOU in self.type:
+        if Mentsu.MINKOU in self.variant:
             self.tiles.append(tile)
-            self.type = Mentsu.SHOUMINKAN
+            self.variant = Mentsu.SHOUMINKAN
 
     def is_chii(self):
-        return Mentsu.CHII in self.type
-    
+        return Mentsu.CHII in self.variant
+
     def is_pon(self):
-        return Mentsu.PON in self.type
-    
+        return Mentsu.PON in self.variant
+
     def is_kan(self):
-        return Mentsu.KAN in self.type
+        return Mentsu.KAN in self.variant
 
     def is_closed(self):
-        return Mentsu.CLOSED in self.type
+        return Mentsu.CLOSED in self.variant
 
     def is_open(self):
-        return Mentsu.OPEN in self.type
+        return Mentsu.OPEN in self.variant
 
     def is_added(self):
-        return Mentsu.ADDED in self.type
+        return Mentsu.ADDED in self.variant
 
     def __str__(self):
-        return str(self.type)
+        return str(self.variant)
 
     def __repr__(self):
-        return f"Meld({self.type=}, {self.tiles=}, {self.called_tile=}, {self.called_player=})"
+        return f"Meld({self.variant=}, {self.tiles=}, {self.called_tile=}, {self.called_player=})"

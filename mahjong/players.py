@@ -1,5 +1,5 @@
 class Player:
-    
+
     def __init__(self, seat, points):
         self.points = points
         self.seat = seat

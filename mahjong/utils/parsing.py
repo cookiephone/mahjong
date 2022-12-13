@@ -1,6 +1,6 @@
-from mahjong.tiles import Tile, Faces
-import re
 from collections import defaultdict
+import re
+from mahjong.tiles import Tile, Faces
 
 
 STRING_MANZU = "m"
@@ -14,12 +14,18 @@ STRING_SOUTH = "s"
 STRING_WEST = "w"
 STRING_NORTH = "n"
 
-ALL_TILES = f"111122223333444405556666777788889999{STRING_MANZU}111122223333444405556666777788889999{STRING_PINZU}111122223333444405556666777788889999{STRING_SOUZU}{STRING_HAKU * 4}{STRING_HATSU * 4}{STRING_CHUN * 4}{STRING_EAST * 4}{STRING_SOUTH * 4}{STRING_WEST * 4}{STRING_NORTH * 4}"
+ALL_TILES = (
+    f"111122223333444405556666777788889999{STRING_MANZU}"
+    f"111122223333444405556666777788889999{STRING_PINZU}"
+    f"111122223333444405556666777788889999{STRING_SOUZU}"
+    f"{STRING_HAKU * 4}{STRING_HATSU * 4}{STRING_CHUN * 4}"
+    f"{STRING_EAST * 4}{STRING_SOUTH * 4}{STRING_WEST * 4}{STRING_NORTH * 4}"
+)
 ALL_TILES_NO_AKA = ALL_TILES.replace("0", "5")
 
-PATTERN_MANZU = f"\d+{STRING_MANZU}"
-PATTERN_PINZU = f"\d+{STRING_PINZU}"
-PATTERN_SOUZU = f"\d+{STRING_SOUZU}"
+PATTERN_MANZU = fr"\d+{STRING_MANZU}"
+PATTERN_PINZU = fr"\d+{STRING_PINZU}"
+PATTERN_SOUZU = fr"\d+{STRING_SOUZU}"
 PATTERN_MPS = f"{PATTERN_MANZU}|{PATTERN_PINZU}|{PATTERN_SOUZU}"
 PATTERN_HAKU = f"{STRING_HAKU}"
 PATTERN_HATSU = f"{STRING_HATSU}"
@@ -33,7 +39,8 @@ PATTERN_WIND = f"{PATTERN_EAST}|{PATTERN_SOUTH}|{PATTERN_WEST}|{PATTERN_NORTH}"
 PATTERN_TILESET = f"(?:{PATTERN_MPS}|{PATTERN_DRAGON}|{PATTERN_WIND})*"
 
 DIGIT_ORDER = [1, 2, 3, 4, 0, 5, 6, 7, 8, 9]
-HONOR_ORDER = [STRING_HAKU, STRING_HATSU, STRING_CHUN, STRING_EAST, STRING_SOUTH, STRING_WEST, STRING_NORTH]
+HONOR_ORDER = [STRING_HAKU, STRING_HATSU, STRING_CHUN,
+               STRING_EAST, STRING_SOUTH, STRING_WEST, STRING_NORTH]
 
 LUT_DIGIT_MANZU = {
     0: Faces.MAN5_AKA,
@@ -82,32 +89,35 @@ class TilesetStringNotSaneException(Exception):
     pass
 
 
-def _tileset_string_sanity(s):
+def _tileset_string_sanity(string):
     pattern = re.compile(PATTERN_TILESET)
-    match = re.fullmatch(pattern, s)
+    match = re.fullmatch(pattern, string)
     return match is not None
+
 
 def _digits_from_match(match):
     matchstring = "".join(match)
-    digitmatch = re.findall(re.compile("\d+"), matchstring)
+    digitmatch = re.findall(re.compile(r"\d+"), matchstring)
     digitstring = "".join(digitmatch)
     digits = [int(d) for d in digitstring]
-    digits.sort(key=lambda d: DIGIT_ORDER.index(d))
+    digits.sort(key=DIGIT_ORDER.index)
     return digits
 
-def tileset_from_string(s):
-    if not _tileset_string_sanity(s):
-        raise TilesetStringNotSaneException(f"string '{s}' does not fully match pattern {PATTERN_TILESET}")
-    manzu = _digits_from_match(re.findall(re.compile(PATTERN_MANZU), s))
-    pinzu = _digits_from_match(re.findall(re.compile(PATTERN_PINZU), s))
-    souzu = _digits_from_match(re.findall(re.compile(PATTERN_SOUZU), s))
-    nhaku = len(re.findall(re.compile(PATTERN_HAKU), s))
-    nhatsu = len(re.findall(re.compile(PATTERN_HATSU), s))
-    nchun = len(re.findall(re.compile(PATTERN_CHUN), s))
-    neast = len(re.findall(re.compile(PATTERN_EAST), s))
-    nsouth = len(re.findall(re.compile(PATTERN_SOUTH), s))
-    nwest = len(re.findall(re.compile(PATTERN_WEST), s))
-    nnorth = len(re.findall(re.compile(PATTERN_NORTH), s))
+
+def tileset_from_string(string):
+    if not _tileset_string_sanity(string):
+        raise TilesetStringNotSaneException(
+            f"string '{string}' does not fully match pattern {PATTERN_TILESET}")
+    manzu = _digits_from_match(re.findall(re.compile(PATTERN_MANZU), string))
+    pinzu = _digits_from_match(re.findall(re.compile(PATTERN_PINZU), string))
+    souzu = _digits_from_match(re.findall(re.compile(PATTERN_SOUZU), string))
+    nhaku = len(re.findall(re.compile(PATTERN_HAKU), string))
+    nhatsu = len(re.findall(re.compile(PATTERN_HATSU), string))
+    nchun = len(re.findall(re.compile(PATTERN_CHUN), string))
+    neast = len(re.findall(re.compile(PATTERN_EAST), string))
+    nsouth = len(re.findall(re.compile(PATTERN_SOUTH), string))
+    nwest = len(re.findall(re.compile(PATTERN_WEST), string))
+    nnorth = len(re.findall(re.compile(PATTERN_NORTH), string))
     tiles = []
     tiles.extend([Tile(face=LUT_DIGIT_MANZU[d]) for d in manzu])
     tiles.extend([Tile(face=LUT_DIGIT_PINZU[d]) for d in pinzu])
@@ -120,6 +130,7 @@ def tileset_from_string(s):
     tiles.extend([Tile(face=Faces.WEST) for _ in range(nwest)])
     tiles.extend([Tile(face=Faces.NORTH) for _ in range(nnorth)])
     return tiles
+
 
 def tileset_to_string(tiles):
     nface = defaultdict(lambda: 0)
@@ -146,13 +157,16 @@ def tileset_to_string(tiles):
                 mpsdigits[STRING_PINZU].append(LUT_PINZU_DIGIT[face])
             case Tile(face=face) if face in Faces.SOUZU:
                 mpsdigits[STRING_SOUZU].append(LUT_SOUZU_DIGIT[face])
-    mpsdigits[STRING_MANZU].sort(key=lambda d: DIGIT_ORDER.index(d))
-    mpsdigits[STRING_PINZU].sort(key=lambda d: DIGIT_ORDER.index(d))
-    mpsdigits[STRING_SOUZU].sort(key=lambda d: DIGIT_ORDER.index(d))
-    s = ""
-    s += f"{''.join(map(str, mpsdigits[STRING_MANZU]))}{STRING_MANZU}" if mpsdigits[STRING_MANZU] else ""
-    s += f"{''.join(map(str, mpsdigits[STRING_PINZU]))}{STRING_PINZU}" if mpsdigits[STRING_PINZU] else ""
-    s += f"{''.join(map(str, mpsdigits[STRING_SOUZU]))}{STRING_SOUZU}" if mpsdigits[STRING_SOUZU] else ""
+    mpsdigits[STRING_MANZU].sort(key=DIGIT_ORDER.index)
+    mpsdigits[STRING_PINZU].sort(key=DIGIT_ORDER.index)
+    mpsdigits[STRING_SOUZU].sort(key=DIGIT_ORDER.index)
+    mpsdigits[STRING_MANZU] = map(str, mpsdigits[STRING_MANZU])
+    mpsdigits[STRING_PINZU] = map(str, mpsdigits[STRING_PINZU])
+    mpsdigits[STRING_SOUZU] = map(str, mpsdigits[STRING_SOUZU])
+    string = ""
+    string += f"{''.join(mpsdigits[STRING_MANZU])}{STRING_MANZU}" if mpsdigits[STRING_MANZU] else ""
+    string += f"{''.join(mpsdigits[STRING_PINZU])}{STRING_PINZU}" if mpsdigits[STRING_PINZU] else ""
+    string += f"{''.join(mpsdigits[STRING_SOUZU])}{STRING_SOUZU}" if mpsdigits[STRING_SOUZU] else ""
     for honorstring in HONOR_ORDER:
-        s += honorstring * nface[honorstring]
-    return s
+        string += honorstring * nface[honorstring]
+    return string

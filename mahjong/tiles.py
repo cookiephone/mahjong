@@ -57,15 +57,18 @@ class Faces(Flag):
     HONORS = DRAGONS | WINDS
 
     def __str__(self):
-        FACE_STRINGS = {
-            Faces.MAN1: "1 man", Faces.MAN2: "2 man", Faces.MAN3: "3 man", Faces.MAN4: "4 man", Faces.MAN5: "5 man", Faces.MAN6: "6 man", Faces.MAN7: "7 man", Faces.MAN8: "8 man", Faces.MAN9: "9 man",
-            Faces.PIN1: "1 pin", Faces.PIN2: "2 pin", Faces.PIN3: "3 pin", Faces.PIN4: "4 pin", Faces.PIN5: "5 pin", Faces.PIN6: "6 pin", Faces.PIN7: "7 pin", Faces.PIN8: "8 pin", Faces.PIN9: "9 pin",
-            Faces.SOU1: "1 sou", Faces.SOU2: "2 sou", Faces.SOU3: "3 sou", Faces.SOU4: "4 sou", Faces.SOU5: "5 sou", Faces.SOU6: "6 sou", Faces.SOU7: "7 sou", Faces.SOU8: "8 sou", Faces.SOU9: "9 sou",
-            Faces.HAKU: "haku", Faces.HATSU: "hatsu", Faces.CHUN: "chun",
-            Faces.EAST: "east", Faces.SOUTH: "south", Faces.WEST: "west", Faces.NORTH: "north",
-            Faces.MAN5_AKA: "5 man aka", Faces.PIN5_AKA: "5 pin aka", Faces.SOU5_AKA: "5 sou aka",
-        }
-        return FACE_STRINGS[self]
+        return {
+            Faces.MAN1: "1 man", Faces.MAN2: "2 man", Faces.MAN3: "3 man", Faces.MAN4: "4 man",
+            Faces.MAN5: "5 man", Faces.MAN6: "6 man", Faces.MAN7: "7 man", Faces.MAN8: "8 man",
+            Faces.MAN9: "9 man", Faces.PIN1: "1 pin", Faces.PIN2: "2 pin", Faces.PIN3: "3 pin",
+            Faces.PIN4: "4 pin", Faces.PIN5: "5 pin", Faces.PIN6: "6 pin", Faces.PIN7: "7 pin",
+            Faces.PIN8: "8 pin", Faces.PIN9: "9 pin", Faces.SOU1: "1 sou", Faces.SOU2: "2 sou",
+            Faces.SOU3: "3 sou", Faces.SOU4: "4 sou", Faces.SOU5: "5 sou", Faces.SOU6: "6 sou",
+            Faces.SOU7: "7 sou", Faces.SOU8: "8 sou", Faces.SOU9: "9 sou", Faces.HAKU: "haku",
+            Faces.HATSU: "hatsu", Faces.CHUN: "chun", Faces.EAST: "east", Faces.SOUTH: "south",
+            Faces.WEST: "west", Faces.NORTH: "north", Faces.MAN5_AKA: "5 man aka",
+            Faces.PIN5_AKA: "5 pin aka", Faces.SOU5_AKA: "5 sou aka",
+        }[self]
 
 
 class Tile():
@@ -88,7 +91,7 @@ class Tile():
 
     def is_dragon(self):
         return self.face in Faces.DRAGONS
-    
+
     def is_wind(self):
         return self.face in Faces.WINDS
 
@@ -104,7 +107,7 @@ class Tile():
     def __str__(self):
         return str(self.face)
 
-    def  __repr__(self):
+    def __repr__(self):
         return f"Tile({self.uid=}, {self.face=})"
 
     def __eq__(self, other):
