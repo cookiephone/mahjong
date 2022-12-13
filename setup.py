@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 import pkg_resources
 
-with open("requirements.txt") as f:
+with open("requirements.txt", encoding="utf-8") as f:
     install_requires = [str(req) for req in pkg_resources.parse_requirements(f)]
 
 setup(

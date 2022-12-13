@@ -1,4 +1,4 @@
-import importlib.resources as resources
+from importlib import resources
 import json
 from mahjong.utils.attrdict import AttrDict
 
