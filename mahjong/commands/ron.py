@@ -7,7 +7,7 @@ class CmdRon(Command):
         super().__init__("ron")
         self.player = player
         self.called_player = called_player
-    
+
     def execute(self, state):
         pass
 

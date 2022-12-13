@@ -6,7 +6,7 @@ class CmdStartHand(Command):
 
     def __init__(self):
         super().__init__("start hand")
-    
+
     def execute(self, state):
         hand = Hand(state)
         state.hands.append(hand)

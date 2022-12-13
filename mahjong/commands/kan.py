@@ -36,4 +36,3 @@ class CmdAddedKan(Command):
 
     def valid(self, state):
         return True #TODO
-

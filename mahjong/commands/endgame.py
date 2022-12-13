@@ -5,7 +5,7 @@ class CmdEndGame(Command):
 
     def __init__(self):
         super().__init__("end game")
-    
+
     def execute(self, state):
         pass #TODO
 

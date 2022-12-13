@@ -24,4 +24,4 @@ class CmdDiscard(Command):
     def _handle_kandora(state):
         if state.rule_context.kan_dora:
             if helpers.filter_commands_by_type(state.history[-1], (CmdKan, CmdAddedKan)):
-                    state.current_hand.wall.reveal_kandora()
+                state.current_hand.wall.reveal_kandora()

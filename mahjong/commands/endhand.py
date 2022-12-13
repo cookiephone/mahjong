@@ -5,7 +5,7 @@ class CmdEndHand(Command):
 
     def __init__(self):
         super().__init__("end hand")
-    
+
     def execute(self, state):
         pass #TODO
 

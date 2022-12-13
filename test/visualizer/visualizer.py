@@ -13,6 +13,9 @@ class Visualizer(arcade.Window):
         self.tile_width = mock.width
         self.tile_height = mock.height
         arcade.set_background_color(arcade.csscolor.DIM_GRAY)
+        self.scene = None
+        self.texts = []
+        self.gui_camera = None
     
     def setup(self):
         self.scene = arcade.Scene()
@@ -29,13 +32,13 @@ class Visualizer(arcade.Window):
         self.scene.draw()
         self.draw_gui()
 
-    def add_tile(self, tile=None, rotation=0, **kwargs):
+    def add_tile(self, tile, rotation=0, **kwargs):
         background = arcade.Sprite(**kwargs | {"angle": rotation, "filename": config.TILE_IMAGES["front"], "scale": config.TILE_SCALING})
         face = arcade.Sprite(**kwargs | {"angle": rotation, "filename": config.TILE_IMAGES[tile], "scale": config.TILE_SCALING})
         self.scene.add_sprite("tiles", background)
         self.scene.add_sprite("tiles", face)
     
-    def add_tile_row(self, tiles=[], anchor_x=0, anchor_y=0, rotation=0, spacing=2, **kwargs):
+    def add_tile_row(self, tiles, anchor_x=0, anchor_y=0, rotation=0, spacing=2, **kwargs):
         tile_half_width, tile_half_height = self.tile_width // 2, self.tile_height // 2
         dx, dy = {
             0: (tile_half_width, -tile_half_height),
@@ -49,7 +52,7 @@ class Visualizer(arcade.Window):
         for i, tile in enumerate(tiles):
             self.add_tile(tile, center_x=anchor_x + i * stride_x, center_y=anchor_y + i * stride_y, rotation=rotation, **kwargs)
     
-    def add_discard_pile(self, player, tiles=[]):
+    def add_discard_pile(self, player, tiles):
         dx, dy, rotation = {
             "bottom": (103, 110, 0),
             "right": (-110, 103, 90),
@@ -62,7 +65,7 @@ class Visualizer(arcade.Window):
         self.add_tile_row(tiles[6:12], anchor_x=self.center_x - dx - rx, anchor_y=self.center_y - dy - ry, rotation=rotation)
         self.add_tile_row(tiles[12:], anchor_x=self.center_x - dx - 2 * rx, anchor_y=self.center_y - dy - 2 * ry, rotation=rotation)
     
-    def add_hand(self, player, tiles=[], draw=None):
+    def add_hand(self, player, tiles, draw=None):
         draw_offset = 13 * (self.tile_width + 2) + 10
         hand_offset = 4 * (self.tile_width + 2)
         dx, dy, draw_offset_x, draw_offset_y, rotation = {
@@ -76,7 +79,7 @@ class Visualizer(arcade.Window):
         if draw:
             self.add_tile_row([draw], anchor_x=anchor_x + draw_offset_x, anchor_y=anchor_y + draw_offset_y, rotation=rotation)
 
-    def add_dora_indicators(self, tiles=[]):
+    def add_dora_indicators(self, tiles):
         self.add_tile_row(tiles[:5], anchor_x=15, anchor_y=self.tile_height + 15)
 
     def update_scene(self):
@@ -116,5 +119,6 @@ def run():
     arcade.run()
 
 
+#TODO remove later
 if __name__ == "__main__":
     run()
