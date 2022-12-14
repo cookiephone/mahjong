@@ -1,13 +1,13 @@
 from random import Random
+from types import SimpleNamespace
 from mahjong import rules
 
 
-class GameState:
-
-    def __init__(self, seed=None, ruleset="default"):
-        self.seed = seed
-        self.rng = Random(self.seed)
-        self.rule_context = rules.get_ruleset_context(ruleset)
-        self.hands = []
-        self.history = []
-        self.current_hand = None
+def gamestate(seed=None, ruleset="default"):
+    return SimpleNamespace(
+        seed=seed,
+        rng=Random(seed),
+        rule_context=rules.get_ruleset_context(ruleset),
+        hands=[],
+        history=[],
+        current_hand=None)
