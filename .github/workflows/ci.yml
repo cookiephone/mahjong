@@ -1,0 +1,12 @@
+name: CI/CD
+
+on: [push]
+
+jobs:
+  lint:
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+    uses: ./.github/workflows/lint.yml
+    with:
+      python-version: ${{ matrix.python-version }}

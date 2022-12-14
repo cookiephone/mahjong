@@ -1,13 +1,15 @@
-name: Pylint
+name: lint
 
-on: [push]
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        required: true
+        type: string
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.10"]
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
@@ -19,6 +21,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pylint
-    - name: Analysing the code with pylint
+        pip install pylint-exit
+    - name: Run linter
       run: |
-        pylint $(git ls-files '*.py')
+        pylint --rcfile=.pylintrc --output-format=text $(git ls-files '*.py') || pylint-exit $?
