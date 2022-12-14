@@ -160,9 +160,9 @@ def tileset_to_string(tiles):
     mpsdigits[STRING_MANZU].sort(key=DIGIT_ORDER.index)
     mpsdigits[STRING_PINZU].sort(key=DIGIT_ORDER.index)
     mpsdigits[STRING_SOUZU].sort(key=DIGIT_ORDER.index)
-    mpsdigits[STRING_MANZU] = map(str, mpsdigits[STRING_MANZU])
-    mpsdigits[STRING_PINZU] = map(str, mpsdigits[STRING_PINZU])
-    mpsdigits[STRING_SOUZU] = map(str, mpsdigits[STRING_SOUZU])
+    mpsdigits[STRING_MANZU] = [str(face) for face in mpsdigits[STRING_MANZU]]
+    mpsdigits[STRING_PINZU] = [str(face) for face in mpsdigits[STRING_PINZU]]
+    mpsdigits[STRING_SOUZU] = [str(face) for face in mpsdigits[STRING_SOUZU]]
     string = ""
     string += f"{''.join(mpsdigits[STRING_MANZU])}{STRING_MANZU}" if mpsdigits[STRING_MANZU] else ""
     string += f"{''.join(mpsdigits[STRING_PINZU])}{STRING_PINZU}" if mpsdigits[STRING_PINZU] else ""

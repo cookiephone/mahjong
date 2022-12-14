@@ -11,6 +11,7 @@ class Hand:
         self.wall.construct(state.rng)
         # TODO: consider state to compute the correct config for the next hand
         self.round_wind = Faces.EAST
+        self.honba = 0
         self.players = self._build_players(state)
         self.dealer = self._compute_dealer()
 
