@@ -13,5 +13,6 @@ class Suukantsu(Yaku):
     disables = NORMAL_YAKU
     enables = {}
 
-    def applies(self, state, player):
+    @staticmethod
+    def applies(state, player):
         pass #TODO

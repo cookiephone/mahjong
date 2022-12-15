@@ -13,5 +13,6 @@ class KazoeYakuman(Yaku):
     disables = {}
     enables = NORMAL_YAKU
 
-    def applies(self, state, player):
+    @staticmethod
+    def applies(state, player):
         pass #TODO

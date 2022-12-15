@@ -12,5 +12,6 @@ class Shousangen(Yaku):
     disables = {}
     enables = {}
 
-    def applies(self, state, player):
+    @staticmethod
+    def applies(state, player):
         pass #TODO

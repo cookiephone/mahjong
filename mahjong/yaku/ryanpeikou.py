@@ -13,5 +13,6 @@ class Ryanpeikou(Yaku):
     disables = {Iipeikou}
     enables = {}
 
-    def applies(self, state, player):
+    @staticmethod
+    def applies(state, player):
         pass #TODO

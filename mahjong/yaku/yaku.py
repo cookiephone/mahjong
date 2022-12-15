@@ -47,5 +47,6 @@ class Yaku(ABC, InheritDecoratorMixin):
 
     @abstractmethod
     @InheritDecoratorMixin.inheritable_decorator(cache)
-    def applies(self, state, player):
+    @staticmethod
+    def applies(state, player):
         raise NotImplementedError

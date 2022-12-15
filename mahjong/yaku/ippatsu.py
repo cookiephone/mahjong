@@ -13,5 +13,6 @@ class Ippatsu(Yaku):
     disables = {}
     enables = {Riichi}
 
-    def applies(self, state, player):
+    @staticmethod
+    def applies(state, player):
         pass #TODO
