@@ -18,7 +18,7 @@ class InheritDecoratorMixin:
         super().__init_subclass__(*args, **kwargs)
         cls._decorator_registry = getattr(cls, "_decorator_registry", {})
         for name, obj in cls.__dict__.items():
-            if getattr(obj, "inherit_decorator", False) and not name in cls._decorator_registry:
+            if getattr(obj, "inherit_decorator", False) and name not in cls._decorator_registry:
                 cls._decorator_registry[name] = obj.inherit_decorator
         for name, decorator in cls._decorator_registry.items():
             if (name in cls.__dict__ and

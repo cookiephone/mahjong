@@ -6,7 +6,7 @@ from mahjong.utils import parsing
 
 
 # god is dead and this file killed him
-_visual_context = None # pylint: disable=C0103
+_visual_context = None  # pylint: disable=C0103
 
 
 class Visualizer(arcade.Window):
@@ -52,8 +52,6 @@ class Visualizer(arcade.Window):
             sorted_hand = parsing.tileset_from_string(parsing.tileset_to_string(player.hand))
             pstate.hand = [str(tile) for tile in sorted_hand]
             pstate.draw = str(player.drawn_tile()) if player.drawn_tile() else None
-
-
         dora_indicators = [str(face) for face in gamestate.current_hand.wall.dora_indicators]
         ndora_revealed = gamestate.current_hand.wall.ndora_revealed
         unrevealed = ["back"] * (5 - ndora_revealed)
@@ -63,10 +61,10 @@ class Visualizer(arcade.Window):
         self.state.tiles_remaining = gamestate.current_hand.wall.remaining
 
     def set_commands(self, commands):
-        pass  #TODO
+        pass  # TODO
 
     def get_command_batch(self):
-        pass  #TODO
+        pass  # TODO
 
     def on_update(self, delta_time):
         self._update_scene()
@@ -156,8 +154,7 @@ class Visualizer(arcade.Window):
                            anchor_y=anchor_y + draw_offset_y, rotation=rotation)
 
     def _add_dora_indicators(self, tiles):
-        self._add_tile_row(tiles[:5], anchor_x=15,
-                           anchor_y=self.consts.tile_height + 15)
+        self._add_tile_row(tiles[:5], anchor_x=15, anchor_y=self.consts.tile_height + 15)
 
     def _update_scene(self):
         self.drawables.scene.get_sprite_list("tiles").clear()
@@ -215,7 +212,7 @@ class Visualizer(arcade.Window):
 
 
 def run_sync(condition):
-    global _visual_context # pylint: disable=C0103,W0603
+    global _visual_context  # pylint: disable=C0103,W0603
     _visual_context = Visualizer()
     if condition:
         with condition:
@@ -236,7 +233,7 @@ if __name__ == "__main__":
 
     from mahjong.commands import CmdStartHand
     from mahjong import Engine, Wall, Meld, Mentsu, Seat
-    seed = 0 # pylint: disable=C0103
+    seed = 0  # pylint: disable=C0103
     engine = Engine(seed=seed)
     CmdStartHand().execute(engine.gamestate)
     wall = Wall()
