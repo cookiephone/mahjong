@@ -9,6 +9,23 @@ from mahjong.utils import parsing
 _visual_context = None  # pylint: disable=C0103
 
 
+class DrawableList(list):
+
+    def draw(self):
+        for elem in self:
+            elem.draw()
+
+
+class RectDrawable:
+
+    def __init__(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+
+    def draw(self):
+        arcade.draw_lrtb_rectangle_outline(*self.args, **self.kwargs)
+
+
 class Visualizer(arcade.Window):
 
     def __init__(self):
@@ -22,7 +39,7 @@ class Visualizer(arcade.Window):
             center_y=self.height // 2,
             tile_width=mock.width,
             tile_height=mock.height)
-        self.drawables = SimpleNamespace(scene=None, texts=None)
+        self.drawables = SimpleNamespace(scene=None, gui=None)
         self.gui_camera = None
         self.state = SimpleNamespace(
             bottom=self.__class__._default_player_state(),
@@ -32,6 +49,7 @@ class Visualizer(arcade.Window):
             dora_indicators=["blank"] * 5,
             round="East 1",
             tiles_remaining=35)
+        self.need_update = False
         self._setup()
 
     @staticmethod
@@ -59,27 +77,41 @@ class Visualizer(arcade.Window):
         round_wind_str = str(gamestate.current_hand.round_wind).capitalize()
         self.state.round = f"{round_wind_str} {gamestate.current_hand.honba}"
         self.state.tiles_remaining = gamestate.current_hand.wall.remaining
+        self.need_update = True
 
     def set_commands(self, commands):
-        pass  # TODO
+        self.need_update = True  # TODO
 
     def get_command_batch(self):
-        pass  # TODO
+        self.need_update = True  # TODO
 
     def on_update(self, delta_time):
-        self._update_scene()
-        self._update_gui()
+        if self.need_update:
+            self._remake_drawables()
+            self.need_update = False
 
     def on_draw(self):
         self.clear()
         self.drawables.scene.draw()
         self._draw_gui()
 
+    def _remake_drawables(self):
+        self._clear_drawables()
+        self._update_scene()
+        self._update_gui()
+
     def _setup(self):
         self.drawables.scene = arcade.Scene()
         self.drawables.scene.add_sprite_list("tiles")
-        self.drawables.texts = []
+        self.drawables.gui = DrawableList()
+        self.drawables.gui.append(arcade.Text("Loading...", self.consts.center_x,
+            self.consts.center_y, color=arcade.csscolor.WHITE, font_size=30,
+            anchor_x="center", anchor_y="center"))
         self.gui_camera = arcade.Camera(self.width, self.height)
+
+    def _clear_drawables(self):
+        self.drawables.scene.get_sprite_list("tiles").clear()
+        self.drawables.gui.clear()
 
     def _add_tile(self, tile, rotation=0, **kwargs):
         background = arcade.Sprite(
@@ -157,7 +189,6 @@ class Visualizer(arcade.Window):
         self._add_tile_row(tiles[:5], anchor_x=15, anchor_y=self.consts.tile_height + 15)
 
     def _update_scene(self):
-        self.drawables.scene.get_sprite_list("tiles").clear()
         self._add_discard_pile("bottom", self.state.bottom.hand)
         self._add_discard_pile("right", self.state.right.hand)
         self._add_discard_pile("top", self.state.top.hand)
@@ -169,46 +200,45 @@ class Visualizer(arcade.Window):
         self._add_dora_indicators(self.state.dora_indicators)
 
     def _update_gui(self):
-        texts = []
-        texts.append(arcade.Text(self.state.bottom.wind, self.consts.center_x - 90,
-                                 self.consts.center_y - 90, color=arcade.csscolor.WHITE,
-                                 rotation=0))
-        texts.append(arcade.Text(self.state.right.wind, self.consts.center_x + 90,
-                                 self.consts.center_y - 90, color=arcade.csscolor.WHITE,
-                                 rotation=90))
-        texts.append(arcade.Text(self.state.top.wind, self.consts.center_x + 90,
-                                 self.consts.center_y + 90, color=arcade.csscolor.WHITE,
-                                 rotation=180))
-        texts.append(arcade.Text(self.state.left.wind, self.consts.center_x - 90,
-                                 self.consts.center_y + 90, color=arcade.csscolor.WHITE,
-                                 rotation=-90))
-        texts.append(arcade.Text(str(self.state.bottom.points), self.consts.center_x,
-                                 self.consts.center_y - 60, color=arcade.csscolor.WHITE,
+        gui = DrawableList()
+        gui.append(arcade.Text(self.state.bottom.wind, self.consts.center_x - 90,
+                               self.consts.center_y - 90, color=arcade.csscolor.WHITE,
+                               rotation=0))
+        gui.append(arcade.Text(self.state.right.wind, self.consts.center_x + 90,
+                               self.consts.center_y - 90, color=arcade.csscolor.WHITE,
+                               rotation=90))
+        gui.append(arcade.Text(self.state.top.wind, self.consts.center_x + 90,
+                               self.consts.center_y + 90, color=arcade.csscolor.WHITE,
+                               rotation=180))
+        gui.append(arcade.Text(self.state.left.wind, self.consts.center_x - 90,
+                               self.consts.center_y + 90, color=arcade.csscolor.WHITE,
+                               rotation=-90))
+        gui.append(arcade.Text(str(self.state.bottom.points), self.consts.center_x,
+                               self.consts.center_y - 60, color=arcade.csscolor.WHITE,
                                  rotation=0, font_size=18, anchor_x="center", anchor_y="center"))
-        texts.append(arcade.Text(str(self.state.right.points), self.consts.center_x + 60,
-                                 self.consts.center_y, color=arcade.csscolor.WHITE,
+        gui.append(arcade.Text(str(self.state.right.points), self.consts.center_x + 60,
+                               self.consts.center_y, color=arcade.csscolor.WHITE,
                                  rotation=90, font_size=18, anchor_x="center", anchor_y="center"))
-        texts.append(arcade.Text(str(self.state.top.points), self.consts.center_x,
-                                 self.consts.center_y + 60, color=arcade.csscolor.WHITE,
-                                 rotation=180, font_size=18, anchor_x="center", anchor_y="center"))
-        texts.append(arcade.Text(str(self.state.left.points), self.consts.center_x - 60,
-                                 self.consts.center_y, color=arcade.csscolor.WHITE,
-                                 rotation=-90, font_size=18, anchor_x="center", anchor_y="center"))
-        texts.append(arcade.Text(self.state.round, self.consts.center_x, self.consts.center_y + 15,
-                                 color=arcade.csscolor.WHITE, font_size=20, anchor_x="center",
-                                 anchor_y="center"))
-        texts.append(arcade.Text(f"x{self.state.tiles_remaining}", self.consts.center_x,
-                                 self.consts.center_y - 15, color=arcade.csscolor.WHITE,
-                                 font_size=15, anchor_x="center", anchor_y="center"))
-        self.drawables.texts = texts
+        gui.append(arcade.Text(str(self.state.top.points), self.consts.center_x,
+                               self.consts.center_y + 60, color=arcade.csscolor.WHITE,
+                               rotation=180, font_size=18, anchor_x="center", anchor_y="center"))
+        gui.append(arcade.Text(str(self.state.left.points), self.consts.center_x - 60,
+                               self.consts.center_y, color=arcade.csscolor.WHITE,
+                               rotation=-90, font_size=18, anchor_x="center", anchor_y="center"))
+        gui.append(arcade.Text(self.state.round, self.consts.center_x, self.consts.center_y + 15,
+                               color=arcade.csscolor.WHITE, font_size=20, anchor_x="center",
+                               anchor_y="center"))
+        gui.append(arcade.Text(f"x{self.state.tiles_remaining}", self.consts.center_x,
+                               self.consts.center_y - 15, color=arcade.csscolor.WHITE,
+                               font_size=15, anchor_x="center", anchor_y="center"))
+        gui.append(RectDrawable(self.consts.center_x - 100, self.consts.center_x + 100,
+                                self.consts.center_y + 100, self.consts.center_y - 100,
+                                arcade.csscolor.WHITE, border_width=3))
+        self.drawables.gui.extend(gui)
 
     def _draw_gui(self):
         self.gui_camera.use()
-        arcade.draw_lrtb_rectangle_outline(self.consts.center_x - 100, self.consts.center_x + 100,
-                                           self.consts.center_y + 100, self.consts.center_y - 100,
-                                           arcade.csscolor.WHITE, border_width=3)
-        for text in self.drawables.texts:
-            text.draw()
+        self.drawables.gui.draw()
 
 
 def run_sync(condition):
