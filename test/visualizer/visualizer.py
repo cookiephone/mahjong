@@ -79,7 +79,7 @@ class Visualizer(arcade.Window):
         self.state.tiles_remaining = gamestate.current_hand.wall.remaining
         self.need_update = True
 
-    def set_commands(self, commands):
+    def set_commands(self, commands):  # pylint: disable=W0613
         self.need_update = True  # TODO
 
     def get_command_batch(self):
