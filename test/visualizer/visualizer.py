@@ -34,7 +34,9 @@ class Visualizer(arcade.Window):
             top=self.__class__._default_player_state(),
             left=self.__class__._default_player_state(),
             dora_indicators=["blank"] * 5,
+            uradora_indicators=["blank"] * 5,
             round="East 1",
+            honba=0,
             tiles_remaining=35)
         self.need_update = False
         self._setup()
@@ -58,11 +60,14 @@ class Visualizer(arcade.Window):
             pstate.hand = [str(tile) for tile in sorted_hand]
             pstate.draw = str(player.drawn_tile()) if player.drawn_tile() else None
         dora_indicators = [str(face) for face in gamestate.current_hand.wall.dora_indicators]
+        uradora_indicators = [str(face) for face in gamestate.current_hand.wall.uradora_indicators]
         ndora_revealed = gamestate.current_hand.wall.ndora_revealed
         unrevealed = ["back"] * (5 - ndora_revealed)
         self.state.dora_indicators = dora_indicators[:ndora_revealed] + unrevealed
+        self.state.uradora_indicators = uradora_indicators[:ndora_revealed] + unrevealed
         round_wind_str = str(gamestate.current_hand.round_wind).capitalize()
-        self.state.round = f"{round_wind_str} {gamestate.current_hand.honba}"
+        self.state.round = f"{round_wind_str} {len(gamestate.hands) % 4}"
+        self.state.honba = gamestate.current_hand.honba
         self.state.tiles_remaining = gamestate.current_hand.wall.remaining
         self.need_update = True
 
@@ -108,12 +113,15 @@ class Visualizer(arcade.Window):
         self.drawables.scene.add_sprite("tiles", background)
         self.drawables.scene.add_sprite("tiles", face)
 
-    def _add_button(self, *args, **kwargs):
+    def _make_button(self, *args, callback=None, **kwargs):
         button = Button(*args, **({"style": config.BUTTON_STYLE} | kwargs))
         button.disable()
-        @button.event("on_click")
-        def button_on_click(event):
-            print(event)
+        if callback:
+            button.event("on_click")(callback)
+        return button
+
+    def _add_button(self, *args, callback=None, **kwargs):
+        button = self._make_button(*args, callback=callback, **kwargs)
         manager = arcade.gui.UIManager()
         manager.enable()
         manager.add(button)
@@ -130,7 +138,10 @@ class Visualizer(arcade.Window):
         y = anchor[1] + button_offset_y + ntiles_offset * strides[1]
         width = size[0] if rotation in [0, 180] else size[1]
         height = size[0] if rotation in [90, 270] else size[1]
-        self._add_button(x=x, y=y, width=width, height=height, text_rotation=rotation, **kwargs)
+        def tile_button_on_click(event):
+            print(event)
+        self._add_button(x=x, y=y, width=width, height=height, text_rotation=rotation,
+                         callback=tile_button_on_click, **kwargs)
 
     def _add_tile_row(self, tiles, anchor_x=0, anchor_y=0, rotation=0, buttons=False, **kwargs):
         tile_half_width = self.consts.tile_width // 2
@@ -203,7 +214,10 @@ class Visualizer(arcade.Window):
                                buttons=True)
 
     def _add_dora_indicators(self, tiles):
-        self._add_tile_row(tiles[:5], anchor_x=15, anchor_y=self.consts.tile_height + 15)
+        self._add_tile_row(tiles[:5], anchor_x=85, anchor_y=2 * self.consts.tile_height + 15 + 3)
+
+    def _add_uradora_indicators(self, tiles):
+        self._add_tile_row(tiles[:5], anchor_x=85, anchor_y=self.consts.tile_height + 15)
 
     def _update_scene(self):
         self._add_discard_pile("bottom", self.state.bottom.hand)
@@ -215,6 +229,7 @@ class Visualizer(arcade.Window):
         self._add_hand("top", self.state.top.hand, draw=self.state.top.draw)
         self._add_hand("left", self.state.left.hand, draw=self.state.left.draw)
         self._add_dora_indicators(self.state.dora_indicators)
+        self._add_uradora_indicators(self.state.uradora_indicators)
 
     def _make_gui_text(self):
         texts = DrawableList()
@@ -248,26 +263,64 @@ class Visualizer(arcade.Window):
         texts.append(arcade.Text(f"x{self.state.tiles_remaining}", self.consts.center_x,
                                  self.consts.center_y - 15, color=arcade.csscolor.WHITE,
                                  font_size=15, anchor_x="center", anchor_y="center"))
+        texts.append(arcade.Text(f"honba {self.state.honba}", self.consts.center_x,
+                                 self.consts.center_y - 36, color=arcade.csscolor.WHITE,
+                                 font_size=11, anchor_x="center", anchor_y="center"))
+        texts.append(arcade.Text("ura", 275, 50, color=arcade.csscolor.WHITE, rotation=-90))
+        texts.append(arcade.Text("dora", 260, 55, color=arcade.csscolor.WHITE, rotation=-90))
+        texts.append(arcade.Text("dora", 260, 100, color=arcade.csscolor.WHITE, rotation=-90))
         return texts
+
+    @staticmethod
+    def _generic_button_callback(event):
+        print(event)
+
+    def _make_player_action_buttons(self, player):
+        rel_width, rel_height = 1.4 * self.consts.tile_width, int(0.7 * self.consts.tile_width)
+        rotation, align_x, align_y, width, height, vertical, reverse = {
+            "bottom": (0, 0, -305, rel_width, rel_height, False, False),
+            "right": (90, 305, 0, rel_height, rel_width, True, True),
+            "top": (180, 0, 305, rel_width, rel_height, False, True),
+            "left": (270, -305, 0, rel_height, rel_width, True, False),
+        }[player]
+        names = ["draw", "chii", "pon", "kan", "ron", "tsumo", "riichi", "9t9h"]
+        if reverse:
+            names.reverse()
+        box = arcade.gui.UIBoxLayout(vertical=vertical)
+        for name in names:
+            box.add(self._make_button(
+                text=name,
+                text_rotation=rotation,
+                width=width,
+                height=height,
+                callback=self._generic_button_callback,
+            ).with_space_around(3, 3, 3, 3))
+        manager = arcade.gui.UIManager()
+        manager.enable()
+        manager.add(arcade.gui.UIAnchorWidget(child=box, align_x=align_x, align_y=align_y))
+        return manager
+
+    def _make_system_buttons(self):
+        names = ["end hand", "end game"]
+        box = arcade.gui.UIBoxLayout(vertical=False)
+        for name in names:
+            box.add(self._make_button(
+                text=name,
+                width=80,
+                height=35,
+                callback=self._generic_button_callback,
+            ).with_space_around(4, 4, 4, 4))
+        manager = arcade.gui.UIManager()
+        manager.enable()
+        manager.add(arcade.gui.UIAnchorWidget(child=box, anchor_x="left", anchor_y="bottom",
+                                              align_x=82, align_y=110))
+        return [manager]
 
     def _make_gui_buttons(self):
         managers = DrawableList()
-
-
-        button = arcade.gui.UIFlatButton(text="test")
-        @button.event("on_click")
-        def button_on_click(event):
-            print(event)
-
-        box = arcade.gui.UIBoxLayout()
-        box.add(button.with_space_around(10, 10, 10, 10))
-
-        manager = arcade.gui.UIManager()
-        manager.enable()
-        manager.add(arcade.gui.UIAnchorWidget(child=box))
-
-        managers.append(manager)
-
+        players = ["bottom", "right", "left", "top"]
+        managers.extend(self._make_player_action_buttons(player) for player in players)
+        managers.extend(self._make_system_buttons())
         return managers
 
     def _update_gui(self):

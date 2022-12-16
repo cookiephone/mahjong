@@ -6,7 +6,7 @@ import arcade
 # also, blending is completely broken in the arcade library, so no semi-transparent buttons
 class Button(arcade.gui.UIFlatButton):
 
-    def __init__(self, text_rotation, *args, **kwargs):
+    def __init__(self, *args, text_rotation=0, **kwargs):
         super().__init__(*args, **kwargs)
         self.text_rotation = text_rotation
         self.enabled = True
