@@ -1,11 +1,24 @@
 from pathlib import Path
+import arcade
 
 
 SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 900
 SCREEN_TITLE = "Riichi Mahjong Visualizer"
 TILE_SCALING = 0.054
-UPDATE_RATE = 1 / 30
+UPDATE_RATE = 1 / 60
+
+BUTTON_STYLE = {
+    "bg_color": arcade.color.EERIE_BLACK,
+    "bg_color_pressed": arcade.color.LIGHT_GRAY,
+    "bg_color_hovered": arcade.color.JET,
+    "bg_color_disabled": arcade.color.DARK_GRAY,
+    "border_color": None,
+    "border_color_pressed": arcade.color.WHITE,
+    "border_color_hovered": None,
+    "border_color_disabled": None,
+    "font_size": 10,
+}
 
 RESOURCES_PATH = Path(__file__).parent / "resources"
 TILE_IMAGES = {
