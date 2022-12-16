@@ -13,7 +13,7 @@ from mahjong.utils import parsing
 _visual_context = None  # pylint: disable=C0103
 
 
-class Visualizer(arcade.Window):
+class VisualContext(arcade.Window):
 
     def __init__(self):
         super().__init__(width=config.SCREEN_WIDTH, height=config.SCREEN_HEIGHT,
@@ -333,9 +333,9 @@ class Visualizer(arcade.Window):
         self.drawables.gui.extend(gui)
 
 
-def run_sync(condition):
+def _run_sync(condition):
     global _visual_context  # pylint: disable=C0103,W0603
-    _visual_context = Visualizer()
+    _visual_context = VisualContext()
     if condition:
         with condition:
             condition.notify()
@@ -344,7 +344,7 @@ def run_sync(condition):
 def run():
     condition = Condition()
     if not _visual_context:
-        Thread(target=run_sync, args=(condition,)).start()
+        Thread(target=_run_sync, args=(condition,)).start()
     with condition:
         condition.wait()
     return _visual_context
@@ -355,6 +355,7 @@ if __name__ == "__main__":
 
     from mahjong.commands import CmdStartHand
     from mahjong import Engine, Wall, Meld, Mentsu, Seat
+
     seed = 0  # pylint: disable=C0103
     engine = Engine(seed=seed)
     CmdStartHand().execute(engine.gamestate)
