@@ -1,7 +1,7 @@
 # pylint: skip-file
 
 import make
-make.build_and_install(deps=False, extras=[])
+make.build_and_install(deps=False, extras=["dev"])
 
 from mahjong.seats import Seat
 from mahjong.melds import Meld, Mentsu
@@ -10,6 +10,9 @@ from mahjong.engine import Engine
 from mahjong.commands.starthand import CmdStartHand
 from mahjong.utils.debug import gamestate_vis_string
 
+import visualizer
+
+visualizer.run()
 
 seed = 0
 

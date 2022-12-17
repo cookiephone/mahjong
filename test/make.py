@@ -4,7 +4,13 @@ import subprocess
 
 def build_and_install(deps=True, extras=None):
     package_root = Path(__file__).parent.parent
-    subprocess.run(["python", package_root / "setup.py", "bdist_wheel"], check=True)
+    cmd = [
+        "python", package_root / "setup.py",
+        "bdist_wheel", "--dist-dir", package_root / "dist",
+        "build", "--build-base", package_root / "build",
+        "egg_info", "--egg-base", package_root / "build",
+    ]
+    subprocess.run(cmd, check=True)
 
     nodeps = ["--no-deps"] if not deps else []
     extras = f"[{','.join(extras)}]" if extras else ""

@@ -2,10 +2,10 @@ from types import SimpleNamespace
 from threading import Thread, Condition
 import arcade
 import arcade.gui
-import config
-from button import Button
-from drawablelist import DrawableList
-from rectdrawable import RectDrawable
+from visualizer import config
+from visualizer.button import Button
+from visualizer.drawablelist import DrawableList
+from visualizer.rectdrawable import RectDrawable
 from mahjong.utils import parsing
 
 
