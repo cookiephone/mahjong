@@ -1,7 +1,7 @@
 # pylint: skip-file
 
 import make
-make.build_and_install(deps=False)
+make.build_and_install(deps=False, extras=[])
 
 from mahjong.seats import Seat
 from mahjong.melds import Meld, Mentsu

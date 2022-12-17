@@ -1,8 +1,10 @@
 from setuptools import find_packages, setup
 import pkg_resources
 
-with open("requirements.txt", encoding="utf-8") as f:
-    install_requires = [str(req) for req in pkg_resources.parse_requirements(f)]
+
+def load_requirements(path):
+    with open(path, encoding="utf-8") as f:
+        return [str(req) for req in pkg_resources.parse_requirements(f)]
 
 setup(
     name="mahjong",
@@ -12,5 +14,5 @@ setup(
     description="riichi mahjong engine",
     author="Spoogie Oogie",
     license="",
-    install_requires=install_requires,
+    install_requires=load_requirements("requirements.txt"),
 )
