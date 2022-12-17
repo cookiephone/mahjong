@@ -138,10 +138,8 @@ class VisualContext(arcade.Window):
         y = anchor[1] + button_offset_y + ntiles_offset * strides[1]
         width = size[0] if rotation in [0, 180] else size[1]
         height = size[0] if rotation in [90, 270] else size[1]
-        def tile_button_on_click(event):
-            print(event)
         self._add_button(x=x, y=y, width=width, height=height, text_rotation=rotation,
-                         callback=tile_button_on_click, **kwargs)
+                         callback=self._generic_button_callback, **kwargs)
 
     def _add_tile_row(self, tiles, anchor_x=0, anchor_y=0, rotation=0, buttons=False, **kwargs):
         tile_half_width = self.consts.tile_width // 2
@@ -276,7 +274,8 @@ class VisualContext(arcade.Window):
         print(event)
 
     def _make_player_action_buttons(self, player):
-        rel_width, rel_height = 1.4 * self.consts.tile_width, int(0.7 * self.consts.tile_width)
+        rel_width = int(1.4 * self.consts.tile_width)
+        rel_height = int(0.7 * self.consts.tile_width)
         rotation, align_x, align_y, width, height, vertical, reverse = {
             "bottom": (0, 0, -305, rel_width, rel_height, False, False),
             "right": (90, 305, 0, rel_height, rel_width, True, True),
