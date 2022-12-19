@@ -1,5 +1,6 @@
 from types import SimpleNamespace
 from threading import Thread, Condition
+import math
 import arcade
 import arcade.gui
 from visualizer import config
@@ -7,6 +8,8 @@ from visualizer.button import Button
 from visualizer.drawablelist import DrawableList
 from visualizer.rectdrawable import RectDrawable
 from mahjong.utils import parsing
+from mahjong.seats import Seat
+from mahjong.melds import Mentsu
 
 
 # god is dead and this file killed him
@@ -25,7 +28,9 @@ class VisualContext(arcade.Window):
             center_x=self.width // 2,
             center_y=self.height // 2,
             tile_width=mock.width,
-            tile_height=mock.height)
+            tile_height=mock.height,
+            tile_half_width = mock.width // 2,
+            tile_half_height = mock.height // 2)
         self.drawables = SimpleNamespace(scene=None, gui=None, buttons=None)
         self.gui_camera = None
         self.state = SimpleNamespace(
@@ -41,15 +46,6 @@ class VisualContext(arcade.Window):
         self.need_update = False
         self._setup()
 
-    @staticmethod
-    def _default_player_state():
-        return SimpleNamespace(
-            points=30000,
-            wind="East",
-            discards=["blank"] * 15,
-            hand=["blank"] * 14,
-            draw="blank")
-
     def set_gamestate(self, gamestate):
         pstates = [self.state.bottom, self.state.right, self.state.top, self.state.left]
         for player, pstate in zip(gamestate.current_hand.players, pstates):
@@ -59,6 +55,7 @@ class VisualContext(arcade.Window):
             sorted_hand = parsing.tileset_from_string(parsing.tileset_to_string(player.hand))
             pstate.hand = [str(tile) for tile in sorted_hand]
             pstate.draw = str(player.drawn_tile()) if player.drawn_tile() else None
+            pstate.melds = [self._meld_as_state(meld, player) for meld in player.called_melds]
         dora_indicators = [str(face) for face in gamestate.current_hand.wall.dora_indicators]
         uradora_indicators = [str(face) for face in gamestate.current_hand.wall.uradora_indicators]
         ndora_revealed = gamestate.current_hand.wall.ndora_revealed
@@ -136,25 +133,23 @@ class VisualContext(arcade.Window):
         }[rotation]
         x = anchor[0] + button_offset_x + ntiles_offset * strides[0]
         y = anchor[1] + button_offset_y + ntiles_offset * strides[1]
-        width = size[0] if rotation in [0, 180] else size[1]
-        height = size[0] if rotation in [90, 270] else size[1]
+        width = size[0] if rotation in {0, 180} else size[1]
+        height = size[0] if rotation in {90, 270} else size[1]
         self._add_button(x=x, y=y, width=width, height=height, text_rotation=rotation,
                          callback=self._generic_button_callback, **kwargs)
 
     def _add_tile_row(self, tiles, anchor_x=0, anchor_y=0, rotation=0, buttons=False, **kwargs):
-        tile_half_width = self.consts.tile_width // 2
-        tile_half_height = self.consts.tile_height // 2
         offset_x, offset_y = {
-            0: (tile_half_width, -tile_half_height),
-            90: (tile_half_height, tile_half_width),
-            180: (-tile_half_width, tile_half_height),
-            270: (-tile_half_height, -tile_half_width),
+            0: (self.consts.tile_half_width, -self.consts.tile_half_height),
+            90: (self.consts.tile_half_height, self.consts.tile_half_width),
+            180: (-self.consts.tile_half_width, self.consts.tile_half_height),
+            270: (-self.consts.tile_half_height, -self.consts.tile_half_width),
         }[rotation]
         button_offset_x, button_offset_y = {
-            0: (0, -(tile_half_height + 5)),
+            0: (0, -(self.consts.tile_half_height + 5)),
             90: (self.consts.tile_height + 5, 0),
             180: (0, self.consts.tile_height + 5),
-            270: (-(tile_half_height + 5), 0),
+            270: (-(self.consts.tile_half_height + 5), 0),
         }[rotation]
         stride = self.consts.tile_width + 2
         stride_x, stride_y = {0: (stride, 0), 90: (
@@ -217,6 +212,75 @@ class VisualContext(arcade.Window):
     def _add_uradora_indicators(self, tiles):
         self._add_tile_row(tiles[:5], anchor_x=85, anchor_y=self.consts.tile_height + 15)
 
+    def _ensure_meld_tile_order(self, m):
+        called_idx = {
+            None: math.nan,
+            Seat.SHIMOCHA: 0,
+            Seat.TOIMEN: -2,
+            Seat.KAMICHA: 2
+        }[m.called_seat] % len(m.tiles)
+        if Mentsu.CHII in m.variant and m.called_seat:
+            tile_idx = m.tiles.index(m.called_tile)
+            m.tiles[tile_idx], m.tiles[called_idx] = m.tiles[called_idx], m.tiles[tile_idx]
+        added_idx = -1 % len(m.tiles) if Mentsu.ADDED in m.variant else math.nan
+        hidden_idxs = {0, 3} if Mentsu.ANKAN in m.variant else {}
+        return m.tiles, called_idx, added_idx, hidden_idxs
+
+    def _add_meld(self, m, anchor_x=0, anchor_y=0, rotation=0, offset=0):
+        tiles, called_idx, added_idx, hidden_idxs = self._ensure_meld_tile_order(m)
+        offset_x, offset_y, hor_x, hor_y = {
+            0: (offset, 0, -1, 0),
+            90: (0, offset, 0, -1),
+            180: (-offset, 0, 1, 0),
+            270: (0, -offset, 0, 1),
+        }[rotation]
+        tile_delta = self.consts.tile_half_width - self.consts.tile_half_height - 1
+        fix_sign = -1 if rotation in {0, 180} else 1
+        new_offset = 0
+        for i, tile in enumerate(reversed(tiles)):
+            pre_offset = self.consts.tile_half_width
+            post_offset = self.consts.tile_half_width + 2
+            true_rotation = rotation
+            true_fix_x = 0
+            true_fix_y = 0
+            if i in {called_idx, added_idx}:
+                pre_offset = self.consts.tile_half_height + 1
+                post_offset = self.consts.tile_half_height + 3
+                true_rotation = rotation - 90
+                true_fix_x = hor_y * tile_delta * fix_sign
+                true_fix_y = hor_x * tile_delta * fix_sign
+            if i == added_idx:
+                pre_offset = -(self.consts.tile_half_height + 3)
+                true_fix_x += hor_y * fix_sign * (self.consts.tile_width + 2)
+                true_fix_y += hor_x * fix_sign * (self.consts.tile_width + 2)
+            if i in hidden_idxs:
+                tile = "back"
+            new_offset += pre_offset
+            self._add_tile(
+                tile,
+                rotation=true_rotation,
+                center_x=anchor_x + offset_x + true_fix_x + hor_x * new_offset,
+                center_y=anchor_y + offset_y + true_fix_y + hor_y * new_offset)
+            new_offset += post_offset
+        return offset - new_offset
+
+    def _add_melds(self, player, melds):
+        lift = self.consts.tile_half_height + 10
+        anchor_x, anchor_y, rotation = {
+            "bottom": (self.width - 40, lift, 0),
+            "right": (self.width - lift, self.height - 40, 90),
+            "top": (40, self.height - lift, 180),
+            "left": (lift, 40, 270),
+        }[player]
+        offset = 0
+        for m in melds:
+            offset += self._add_meld(
+                m,
+                anchor_x=anchor_x,
+                anchor_y=anchor_y,
+                rotation=rotation,
+                offset=offset)
+
     def _update_scene(self):
         self._add_discard_pile("bottom", self.state.bottom.hand)
         self._add_discard_pile("right", self.state.right.hand)
@@ -226,6 +290,10 @@ class VisualContext(arcade.Window):
         self._add_hand("right", self.state.right.hand, draw=self.state.right.draw)
         self._add_hand("top", self.state.top.hand, draw=self.state.top.draw)
         self._add_hand("left", self.state.left.hand, draw=self.state.left.draw)
+        self._add_melds("bottom", self.state.bottom.melds)
+        self._add_melds("right", self.state.right.melds)
+        self._add_melds("top", self.state.top.melds)
+        self._add_melds("left", self.state.left.melds)
         self._add_dora_indicators(self.state.dora_indicators)
         self._add_uradora_indicators(self.state.uradora_indicators)
 
@@ -268,10 +336,6 @@ class VisualContext(arcade.Window):
         texts.append(arcade.Text("dora", 260, 55, color=arcade.csscolor.WHITE, rotation=-90))
         texts.append(arcade.Text("dora", 260, 100, color=arcade.csscolor.WHITE, rotation=-90))
         return texts
-
-    @staticmethod
-    def _generic_button_callback(event):
-        print(event)
 
     def _make_player_action_buttons(self, player):
         rel_width = int(1.4 * self.consts.tile_width)
@@ -331,6 +395,30 @@ class VisualContext(arcade.Window):
         gui.extend(self._make_gui_buttons())
         self.drawables.gui.extend(gui)
 
+    @staticmethod
+    def _default_player_state():
+        return SimpleNamespace(
+            points=30000,
+            wind="East",
+            discards=["blank"] * 15,
+            hand=["blank"] * 14,
+            melds=[],
+            draw="blank")
+
+    @staticmethod
+    def _meld_as_state(called_meld, owner):
+        is_open = called_meld.is_open()
+        return SimpleNamespace(
+            variant=called_meld.variant,
+            tiles=[str(tile) for tile in called_meld.tiles],
+            called_tile=str(called_meld.called_tile) if is_open else None,
+            called_seat=owner.seat.relative(called_meld.called_player.seat) if is_open else None,
+            open=is_open)
+
+    @staticmethod
+    def _generic_button_callback(event):
+        print(event)
+
 
 def _run_sync(condition):
     global _visual_context  # pylint: disable=C0103,W0603
@@ -348,18 +436,20 @@ def run():
         condition.wait()
     return _visual_context
 
+
 # TODO remove later, just for quick and dirty debug
 if __name__ == "__main__":
     visual_context = run()
 
     from mahjong.commands import CmdStartHand
-    from mahjong import Engine, Wall, Meld, Mentsu, Seat
+    from mahjong import Engine, Wall, Meld
+    from random import Random
 
     seed = 0  # pylint: disable=C0103
     engine = Engine(seed=seed)
     CmdStartHand().execute(engine.gamestate)
     wall = Wall()
-    wall.construct()
+    wall.construct(rng=Random(42))
     ndiscards = [15, 17, 14, 14]
     for idx, p in enumerate(engine.gamestate.hands[-1].players):
         p.hand = [wall.draw() for _ in range(13)]
@@ -369,22 +459,25 @@ if __name__ == "__main__":
         return [hand.pop() for _ in range(amount)]
     ts = nfromhand(engine.gamestate.hands[-1].players[0].hand, 3)
     meld = Meld(variant=Mentsu.MINJUN, tiles=ts, called_tile=ts[0],
-        called_player=engine.gamestate.hands[-1].get_player(Seat.EAST))
+        called_player=engine.gamestate.hands[-1].get_player(Seat.WEST))
     engine.gamestate.hands[-1].players[0].called_melds.append(meld)
     ts = nfromhand(engine.gamestate.hands[-1].players[0].hand, 3)
     meld = Meld(variant=Mentsu.MINKOU, tiles=ts, called_tile=ts[1],
-        called_player=engine.gamestate.hands[-1].get_player(Seat.SOUTH))
+        called_player=engine.gamestate.hands[-1].get_player(Seat.NORTH))
     engine.gamestate.hands[-1].players[0].called_melds.append(meld)
     ts = nfromhand(engine.gamestate.hands[-1].players[2].hand, 4)
     meld = Meld(variant=Mentsu.MINKAN, tiles=ts, called_tile=ts[2],
-        called_player=engine.gamestate.hands[-1].get_player(Seat.WEST))
+        called_player=engine.gamestate.hands[-1].get_player(Seat.SOUTH))
     engine.gamestate.hands[-1].players[2].called_melds.append(meld)
+    ts = nfromhand(engine.gamestate.hands[-1].players[1].hand, 3)
+    meld = Meld(variant=Mentsu.MINJUN, tiles=ts, called_tile=ts[0],
+        called_player=engine.gamestate.hands[-1].get_player(Seat.WEST))
+    engine.gamestate.hands[-1].players[1].called_melds.append(meld)
     ts = nfromhand(engine.gamestate.hands[-1].players[3].hand, 4)
     meld = Meld(variant=Mentsu.SHOUMINKAN, tiles=ts, called_tile=ts[3],
-        called_player=engine.gamestate.hands[-1].get_player(Seat.NORTH))
+        called_player=engine.gamestate.hands[-1].get_player(Seat.WEST))
     engine.gamestate.hands[-1].players[3].called_melds.append(meld)
     ts = nfromhand(engine.gamestate.hands[-1].players[3].hand, 4)
     meld = Meld(variant=Mentsu.ANKAN, tiles=ts)
     engine.gamestate.hands[-1].players[3].called_melds.append(meld)
-
     visual_context.set_gamestate(engine.gamestate)
