@@ -12,7 +12,7 @@ from mahjong.utils.debug import gamestate_vis_string
 
 import visualizer
 
-visualizer.run()
+#visualizer.run()
 
 seed = 0
 

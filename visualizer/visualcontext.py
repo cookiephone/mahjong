@@ -5,8 +5,7 @@ import arcade
 import arcade.gui
 from visualizer import config
 from visualizer.button import Button
-from visualizer.drawablelist import DrawableList
-from visualizer.rectdrawable import RectDrawable
+from visualizer.drawables import DrawableList, RectDrawable, RiichiStickDrawable
 from mahjong.utils import parsing
 from mahjong.seats import Seat
 from mahjong.melds import Mentsu
@@ -21,7 +20,7 @@ class VisualContext(arcade.Window):
     def __init__(self):
         super().__init__(width=config.SCREEN_WIDTH, height=config.SCREEN_HEIGHT,
                          title=config.SCREEN_TITLE, update_rate=config.UPDATE_RATE)
-        arcade.set_background_color(arcade.csscolor.DIM_GRAY)
+        arcade.set_background_color(arcade.color.DIM_GRAY)
         mock = arcade.Sprite(
             filename=config.TILE_IMAGES["front"], scale=config.TILE_SCALING)
         self.consts = SimpleNamespace(
@@ -31,24 +30,24 @@ class VisualContext(arcade.Window):
             tile_height=mock.height,
             tile_half_width = mock.width // 2,
             tile_half_height = mock.height // 2)
-        self.drawables = SimpleNamespace(scene=None, gui=None, buttons=None)
+        self.drawables = SimpleNamespace(scene=None, gui=None, buttons=None, sticks=None)
         self.gui_camera = None
         self.state = SimpleNamespace(
-            bottom=self.__class__._default_player_state(),
-            right=self.__class__._default_player_state(),
-            top=self.__class__._default_player_state(),
-            left=self.__class__._default_player_state(),
+            bottom=self._default_player_state("bottom"),
+            right=self._default_player_state("right"),
+            top=self._default_player_state("top"),
+            left=self._default_player_state("left"),
             dora_indicators=["blank"] * 5,
             uradora_indicators=["blank"] * 5,
             round="East 1",
             honba=0,
             tiles_remaining=35)
+        self.state.players = [self.state.bottom, self.state.right, self.state.top, self.state.left]
         self.need_update = False
         self._setup()
 
     def set_gamestate(self, gamestate):
-        pstates = [self.state.bottom, self.state.right, self.state.top, self.state.left]
-        for player, pstate in zip(gamestate.current_hand.players, pstates):
+        for player, pstate in zip(gamestate.current_hand.players, self.state.players):
             pstate.points = player.points
             pstate.wind = str(player.seat).capitalize()
             pstate.discards = [str(tile) for tile in player.discards]
@@ -56,6 +55,9 @@ class VisualContext(arcade.Window):
             pstate.hand = [str(tile) for tile in sorted_hand]
             pstate.draw = str(player.drawn_tile()) if player.drawn_tile() else None
             pstate.melds = [self._meld_as_state(meld, player) for meld in player.called_melds]
+            # TODO: get riichi status/riichi-discard of player
+            # TODO: (consider riichi discard called and rediscarded!)
+            pstate.riichi = None
         dora_indicators = [str(face) for face in gamestate.current_hand.wall.dora_indicators]
         uradora_indicators = [str(face) for face in gamestate.current_hand.wall.uradora_indicators]
         ndora_revealed = gamestate.current_hand.wall.ndora_revealed
@@ -88,12 +90,14 @@ class VisualContext(arcade.Window):
         self.gui_camera.use()
         self.drawables.gui.draw()
         self.drawables.buttons.draw()
+        self.drawables.sticks.draw()
 
     def _setup(self):
         self.drawables.scene = arcade.Scene()
         self.drawables.scene.add_sprite_list("tiles")
         self.drawables.gui = DrawableList()
         self.drawables.buttons = DrawableList()
+        self.drawables.sticks = DrawableList()
         self.gui_camera = arcade.Camera(self.width, self.height)
 
     def _add_tile(self, tile, rotation=0, **kwargs):
@@ -138,79 +142,97 @@ class VisualContext(arcade.Window):
         self._add_button(x=x, y=y, width=width, height=height, text_rotation=rotation,
                          callback=self._generic_button_callback, **kwargs)
 
-    def _add_tile_row(self, tiles, anchor_x=0, anchor_y=0, rotation=0, buttons=False, **kwargs):
-        offset_x, offset_y = {
-            0: (self.consts.tile_half_width, -self.consts.tile_half_height),
-            90: (self.consts.tile_half_height, self.consts.tile_half_width),
-            180: (-self.consts.tile_half_width, self.consts.tile_half_height),
-            270: (-self.consts.tile_half_height, -self.consts.tile_half_width),
-        }[rotation]
-        button_offset_x, button_offset_y = {
-            0: (0, -(self.consts.tile_half_height + 5)),
-            90: (self.consts.tile_height + 5, 0),
-            180: (0, self.consts.tile_height + 5),
-            270: (-(self.consts.tile_half_height + 5), 0),
-        }[rotation]
+    def _add_tile_row(self, tiles, anchor=(0, 0), rotation=0, buttons=False, riichi=None, **kwargs):
         stride = self.consts.tile_width + 2
-        stride_x, stride_y = {0: (stride, 0), 90: (
-            0, stride), 180: (-stride, 0), 270: (0, -stride)}[rotation]
+        offset_x, offset_y, button_offset_x, button_offset_y, stride_x, stride_y, riichi_sign = {
+            0: (self.consts.tile_half_width, -self.consts.tile_half_height,
+                0, -(self.consts.tile_half_height + 5), stride, 0, 1),
+            90: (self.consts.tile_half_height, self.consts.tile_half_width,
+                self.consts.tile_height + 5, 0, 0, stride, 1),
+            180: (-self.consts.tile_half_width, self.consts.tile_half_height,
+                0, self.consts.tile_height + 5, -stride, 0, -1),
+            270: (-self.consts.tile_half_height, -self.consts.tile_half_width,
+                -(self.consts.tile_half_height + 5), 0, 0, -stride, -1),
+        }[rotation]
+        riichi_offset = riichi_sign * (self.consts.tile_height - self.consts.tile_width) // 2
+        riichi_offset_x = riichi_offset if stride_x != 0 else 0
+        riichi_offset_y = riichi_offset if stride_y != 0 else 0
+        running_riichi_offset_x, running_riichi_offset_y = 0, 0
         for i, tile in enumerate(tiles):
-            self._add_tile(tile, center_x=anchor_x + offset_x + i * stride_x,
-                           center_y=anchor_y + offset_y + i * stride_y, rotation=rotation, **kwargs)
+            if i == riichi:
+                running_riichi_offset_x += riichi_offset_x
+                running_riichi_offset_y += riichi_offset_y
+            self._add_tile(
+                tile,
+                center_x=anchor[0] + offset_x + running_riichi_offset_x + i * stride_x,
+                center_y=anchor[1] + offset_y + running_riichi_offset_y + i * stride_y,
+                rotation=rotation - (90 if i == riichi else 0),
+                **kwargs)
+            if i == riichi:
+                running_riichi_offset_x += riichi_offset_x
+                running_riichi_offset_y += riichi_offset_y
             button_size = (self.consts.tile_width, int(0.7 * self.consts.tile_width))
             if buttons:
-                self._add_tile_button((anchor_x + button_offset_x, anchor_y + button_offset_y),
+                self._add_tile_button((anchor[0] + button_offset_x, anchor[1] + button_offset_y),
                                       button_size, rotation=rotation, strides=(stride_x, stride_y),
                                       ntiles_offset=i, text="cut")
 
-    def _add_discard_pile(self, player, tiles):
-        offset_x, offset_y, rotation = {
-            "bottom": (103, 110, 0),
-            "right": (-110, 103, 90),
-            "top": (-103, -110, 180),
-            "left": (110, -103, 270),
-        }[player]
+    def _add_discard_pile(self, player):
         row_offset = self.consts.tile_height + 2
-        row_offset_x, row_offset_y = {"bottom": (0, row_offset), "right": (-row_offset, 0),
-                                      "top": (0, -row_offset), "left": (row_offset, 0)}[player]
+        offset_x, offset_y, row_offset_x, row_offset_y, rotation = {
+            "bottom": (103, 110, 0, row_offset, 0),
+            "right": (-110, 103, -row_offset, 0, 90),
+            "top": (-103, -110, 0, -row_offset, 180),
+            "left": (110, -103, row_offset, 0, 270),
+        }[player.position]
         self._add_tile_row(
-            tiles[:6],
-            anchor_x=self.consts.center_x - offset_x,
-            anchor_y=self.consts.center_y - offset_y,
-            rotation=rotation)
+            player.discards[:6],
+            anchor=(
+                self.consts.center_x - offset_x,
+                self.consts.center_y - offset_y),
+            rotation=rotation,
+            riichi=player.riichi)
         self._add_tile_row(
-            tiles[6:12],
-            anchor_x=self.consts.center_x - offset_x - row_offset_x,
-            anchor_y=self.consts.center_y - offset_y - row_offset_y,
-            rotation=rotation)
+            player.discards[6:12],
+            anchor=(
+                self.consts.center_x - offset_x - row_offset_x,
+                self.consts.center_y - offset_y - row_offset_y),
+            rotation=rotation,
+            riichi=player.riichi - 6)
         self._add_tile_row(
-            tiles[12:],
-            anchor_x=self.consts.center_x - offset_x - 2 * row_offset_x,
-            anchor_y=self.consts.center_y - offset_y - 2 * row_offset_y,
-            rotation=rotation)
+            player.discards[12:],
+            anchor=(
+                self.consts.center_x - offset_x - 2 * row_offset_x,
+                self.consts.center_y - offset_y - 2 * row_offset_y),
+            rotation=rotation,
+            riichi=player.riichi - 12)
 
-    def _add_hand(self, player, tiles, draw=None):
-        draw_offset = len(tiles) * (self.consts.tile_width + 2) + 10
+    def _add_hand(self, player):
+        draw_offset = len(player.hand) * (self.consts.tile_width + 2) + 10
         hand_offset = 4 * (self.consts.tile_width + 2)
         offset_x, offset_y, draw_offset_x, draw_offset_y, rotation = {
             "bottom": (103 + hand_offset, 330, draw_offset, 0, 0),
             "right": (-330, 103 + hand_offset, 0, draw_offset, 90),
             "top": (-103 - hand_offset, -330, -draw_offset, 0, 180),
             "left": (330, -103 - hand_offset, 0, -draw_offset, 270),
-        }[player]
+        }[player.position]
         anchor_x, anchor_y = self.consts.center_x -  offset_x, self.consts.center_y - offset_y
-        self._add_tile_row(tiles[:13], anchor_x=anchor_x, anchor_y=anchor_y,
-                           rotation=rotation, buttons=True)
-        if draw:
-            self._add_tile_row([draw], anchor_x=anchor_x + draw_offset_x,
-                               anchor_y=anchor_y + draw_offset_y, rotation=rotation,
-                               buttons=True)
+        self._add_tile_row(
+            player.hand[:13],
+            anchor=(anchor_x, anchor_y),
+            rotation=rotation,
+            buttons=True)
+        if player.draw:
+            self._add_tile_row(
+                [player.draw],
+                anchor=(anchor_x + draw_offset_x, anchor_y + draw_offset_y),
+                rotation=rotation, buttons=True)
 
     def _add_dora_indicators(self, tiles):
-        self._add_tile_row(tiles[:5], anchor_x=85, anchor_y=2 * self.consts.tile_height + 15 + 3)
+        self._add_tile_row(tiles[:5], anchor=(85, 2 * self.consts.tile_height + 15 + 3))
 
     def _add_uradora_indicators(self, tiles):
-        self._add_tile_row(tiles[:5], anchor_x=85, anchor_y=self.consts.tile_height + 15)
+        self._add_tile_row(tiles[:5], anchor=(85, self.consts.tile_height + 15))
 
     def _ensure_meld_tile_order(self, m):
         called_idx = {
@@ -264,16 +286,16 @@ class VisualContext(arcade.Window):
             new_offset += post_offset
         return offset - new_offset
 
-    def _add_melds(self, player, melds):
+    def _add_melds(self, player):
         lift = self.consts.tile_half_height + 10
         anchor_x, anchor_y, rotation = {
             "bottom": (self.width - 40, lift, 0),
             "right": (self.width - lift, self.height - 40, 90),
             "top": (40, self.height - lift, 180),
             "left": (lift, 40, 270),
-        }[player]
+        }[player.position]
         offset = 0
-        for m in melds:
+        for m in player.melds:
             offset += self._add_meld(
                 m,
                 anchor_x=anchor_x,
@@ -281,60 +303,67 @@ class VisualContext(arcade.Window):
                 rotation=rotation,
                 offset=offset)
 
+    def _add_riichi_stick(self, player):
+        if player.riichi is not None:
+            offset_x, offset_y, rotate = {
+                "bottom": (0, -90, False),
+                "right": (90, 0, True),
+                "top": (0, 90, False),
+                "left": (-90, 0, True),
+            }[player.position]
+            self.drawables.sticks.append(RiichiStickDrawable(
+                center_x=self.consts.center_x + offset_x,
+                center_y=self.consts.center_y + offset_y,
+                scale=1.1,
+                rotate=rotate))
+
     def _update_scene(self):
-        self._add_discard_pile("bottom", self.state.bottom.hand)
-        self._add_discard_pile("right", self.state.right.hand)
-        self._add_discard_pile("top", self.state.top.hand)
-        self._add_discard_pile("left", self.state.left.hand)
-        self._add_hand("bottom", self.state.bottom.hand, draw=self.state.bottom.draw)
-        self._add_hand("right", self.state.right.hand, draw=self.state.right.draw)
-        self._add_hand("top", self.state.top.hand, draw=self.state.top.draw)
-        self._add_hand("left", self.state.left.hand, draw=self.state.left.draw)
-        self._add_melds("bottom", self.state.bottom.melds)
-        self._add_melds("right", self.state.right.melds)
-        self._add_melds("top", self.state.top.melds)
-        self._add_melds("left", self.state.left.melds)
+        for player in self.state.players:
+            self._add_discard_pile(player)
+            self._add_hand(player)
+            self._add_melds(player)
+            self._add_riichi_stick(player)
         self._add_dora_indicators(self.state.dora_indicators)
         self._add_uradora_indicators(self.state.uradora_indicators)
 
     def _make_gui_text(self):
         texts = DrawableList()
         texts.append(arcade.Text(self.state.bottom.wind, self.consts.center_x - 90,
-                                 self.consts.center_y - 90, color=arcade.csscolor.WHITE,
+                                 self.consts.center_y - 90, color=arcade.color.WHITE,
                                  rotation=0))
         texts.append(arcade.Text(self.state.right.wind, self.consts.center_x + 90,
-                                 self.consts.center_y - 90, color=arcade.csscolor.WHITE,
+                                 self.consts.center_y - 90, color=arcade.color.WHITE,
                                  rotation=90))
         texts.append(arcade.Text(self.state.top.wind, self.consts.center_x + 90,
-                                 self.consts.center_y + 90, color=arcade.csscolor.WHITE,
+                                 self.consts.center_y + 90, color=arcade.color.WHITE,
                                  rotation=180))
         texts.append(arcade.Text(self.state.left.wind, self.consts.center_x - 90,
-                                 self.consts.center_y + 90, color=arcade.csscolor.WHITE,
+                                 self.consts.center_y + 90, color=arcade.color.WHITE,
                                  rotation=-90))
         texts.append(arcade.Text(str(self.state.bottom.points), self.consts.center_x,
-                                 self.consts.center_y - 60, color=arcade.csscolor.WHITE,
+                                 self.consts.center_y - 60, color=arcade.color.WHITE,
                                  rotation=0, font_size=18, anchor_x="center", anchor_y="center"))
         texts.append(arcade.Text(str(self.state.right.points), self.consts.center_x + 60,
-                                 self.consts.center_y, color=arcade.csscolor.WHITE,
+                                 self.consts.center_y, color=arcade.color.WHITE,
                                  rotation=90, font_size=18, anchor_x="center", anchor_y="center"))
         texts.append(arcade.Text(str(self.state.top.points), self.consts.center_x,
-                                 self.consts.center_y + 60, color=arcade.csscolor.WHITE,
+                                 self.consts.center_y + 60, color=arcade.color.WHITE,
                                  rotation=180, font_size=18, anchor_x="center", anchor_y="center"))
         texts.append(arcade.Text(str(self.state.left.points), self.consts.center_x - 60,
-                                 self.consts.center_y, color=arcade.csscolor.WHITE,
+                                 self.consts.center_y, color=arcade.color.WHITE,
                                  rotation=-90, font_size=18, anchor_x="center", anchor_y="center"))
         texts.append(arcade.Text(self.state.round, self.consts.center_x, self.consts.center_y + 15,
-                                 color=arcade.csscolor.WHITE, font_size=20, anchor_x="center",
+                                 color=arcade.color.WHITE, font_size=20, anchor_x="center",
                                  anchor_y="center"))
         texts.append(arcade.Text(f"x{self.state.tiles_remaining}", self.consts.center_x,
-                                 self.consts.center_y - 15, color=arcade.csscolor.WHITE,
+                                 self.consts.center_y - 15, color=arcade.color.WHITE,
                                  font_size=15, anchor_x="center", anchor_y="center"))
         texts.append(arcade.Text(f"honba {self.state.honba}", self.consts.center_x,
-                                 self.consts.center_y - 36, color=arcade.csscolor.WHITE,
+                                 self.consts.center_y - 36, color=arcade.color.WHITE,
                                  font_size=11, anchor_x="center", anchor_y="center"))
-        texts.append(arcade.Text("ura", 275, 50, color=arcade.csscolor.WHITE, rotation=-90))
-        texts.append(arcade.Text("dora", 260, 55, color=arcade.csscolor.WHITE, rotation=-90))
-        texts.append(arcade.Text("dora", 260, 100, color=arcade.csscolor.WHITE, rotation=-90))
+        texts.append(arcade.Text("ura", 275, 50, color=arcade.color.WHITE, rotation=-90))
+        texts.append(arcade.Text("dora", 260, 55, color=arcade.color.WHITE, rotation=-90))
+        texts.append(arcade.Text("dora", 260, 100, color=arcade.color.WHITE, rotation=-90))
         return texts
 
     def _make_player_action_buttons(self, player):
@@ -345,7 +374,7 @@ class VisualContext(arcade.Window):
             "right": (90, 305, 0, rel_height, rel_width, True, True),
             "top": (180, 0, 305, rel_width, rel_height, False, True),
             "left": (270, -305, 0, rel_height, rel_width, True, False),
-        }[player]
+        }[player.position]
         names = ["draw", "chii", "pon", "kan", "ron", "tsumo", "riichi", "9t9h"]
         if reverse:
             names.reverse()
@@ -381,8 +410,7 @@ class VisualContext(arcade.Window):
 
     def _make_gui_buttons(self):
         managers = DrawableList()
-        players = ["bottom", "right", "left", "top"]
-        managers.extend(self._make_player_action_buttons(player) for player in players)
+        managers.extend(self._make_player_action_buttons(player) for player in self.state.players)
         managers.extend(self._make_system_buttons())
         return managers
 
@@ -391,19 +419,21 @@ class VisualContext(arcade.Window):
         gui.extend(self._make_gui_text())
         gui.append(RectDrawable(self.consts.center_x - 100, self.consts.center_x + 100,
                                 self.consts.center_y + 100, self.consts.center_y - 100,
-                                arcade.csscolor.WHITE, border_width=3))
+                                arcade.color.WHITE, border_width=3))
         gui.extend(self._make_gui_buttons())
         self.drawables.gui.extend(gui)
 
     @staticmethod
-    def _default_player_state():
+    def _default_player_state(position):
         return SimpleNamespace(
+            position=position,
             points=30000,
             wind="East",
             discards=["blank"] * 15,
             hand=["blank"] * 14,
             melds=[],
-            draw="blank")
+            draw="blank",
+            riichi=None)
 
     @staticmethod
     def _meld_as_state(called_meld, owner):
@@ -480,4 +510,12 @@ if __name__ == "__main__":
     ts = nfromhand(engine.gamestate.hands[-1].players[3].hand, 4)
     meld = Meld(variant=Mentsu.ANKAN, tiles=ts)
     engine.gamestate.hands[-1].players[3].called_melds.append(meld)
+
     visual_context.set_gamestate(engine.gamestate)
+
+    # mock riichi
+    visual_context.state.bottom.riichi = 0
+    visual_context.state.right.riichi = 1
+    visual_context.state.top.riichi = 8
+    visual_context.state.left.riichi = 12
+    visual_context.need_update = True
