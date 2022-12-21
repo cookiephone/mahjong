@@ -9,7 +9,16 @@ class Hand:
     def __init__(self, state):
         self.wall = Wall(akadora=state.rule_context.aka_dora)
         self.wall.construct(state.rng)
-        # TODO: consider state to compute the correct config for the next hand
+        self.round_wind = None
+        self.honba = None
+        self.players = None
+        self.dealer = None
+        # TODO: remove once it is moved into command starthand
+        self.init_from_state(state)
+
+    # TODO: consider state to compute the correct config for the next hand
+    # TODO: this should be in command execution, not hand
+    def init_from_state(self, state):
         self.round_wind = Faces.EAST
         self.honba = 0
         self.players = self._build_players(state)
@@ -24,10 +33,7 @@ class Hand:
         return players
 
     def _compute_dealer(self):
-        for player in self.players:
-            if player.seat == Seat.EAST:
-                return player
-        raise ValueError(f"could not find player with seat {Seat.EAST}")
+        return next(player for player in self.players if player.seat == Seat.EAST)
 
     def get_player(self, seat):
         for player in self.players:
