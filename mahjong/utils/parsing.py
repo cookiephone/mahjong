@@ -104,7 +104,7 @@ def _digits_from_match(match):
     return digits
 
 
-def tileset_from_string(string):
+def tileset_from_string(string, unique_uids=False):
     if not _tileset_string_sanity(string):
         raise TilesetStringNotSaneException(
             f"string '{string}' does not fully match pattern {PATTERN_TILESET}")
@@ -129,6 +129,9 @@ def tileset_from_string(string):
     tiles.extend([Tile(face=Faces.SOUTH) for _ in range(nsouth)])
     tiles.extend([Tile(face=Faces.WEST) for _ in range(nwest)])
     tiles.extend([Tile(face=Faces.NORTH) for _ in range(nnorth)])
+    if unique_uids:
+        for i, tile in enumerate(tiles):
+            tile.uid = i
     return tiles
 
 

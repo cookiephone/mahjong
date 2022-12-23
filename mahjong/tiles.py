@@ -56,6 +56,54 @@ class Faces(Flag):
     TERMINALS = MAN1 | MAN9 | PIN1 | PIN9 | SOU1 | SOU9
     HONORS = DRAGONS | WINDS
 
+    def key(self):
+        return {
+            Faces.MAN1: 11, Faces.MAN2: 12, Faces.MAN3: 13,
+            Faces.MAN4: 14, Faces.MAN5: 15, Faces.MAN6: 16,
+            Faces.MAN7: 17, Faces.MAN8: 18, Faces.MAN9: 19,
+            Faces.PIN1: 21, Faces.PIN2: 22, Faces.PIN3: 23,
+            Faces.PIN4: 24, Faces.PIN5: 25, Faces.PIN6: 26,
+            Faces.PIN7: 27, Faces.PIN8: 28, Faces.PIN9: 29,
+            Faces.SOU1: 31, Faces.SOU2: 32, Faces.SOU3: 33,
+            Faces.SOU4: 34, Faces.SOU5: 35, Faces.SOU6: 36,
+            Faces.SOU7: 37, Faces.SOU8: 38, Faces.SOU9: 39,
+            Faces.HAKU: 81, Faces.HATSU: 82, Faces.CHUN: 83,
+            Faces.EAST: 91, Faces.SOUTH: 92, Faces.WEST: 93, Faces.NORTH: 94,
+            Faces.MAN5_AKA: 15, Faces.PIN5_AKA: 25, Faces.SOU5_AKA: 35,
+        }[self]
+
+    def succ(self):
+        return {
+            Faces.MAN1: Faces.MAN2, Faces.MAN2: Faces.MAN3, Faces.MAN3: Faces.MAN4,
+            Faces.MAN4: Faces.MAN5, Faces.MAN5: Faces.MAN6, Faces.MAN6: Faces.MAN7,
+            Faces.MAN7: Faces.MAN8, Faces.MAN8: Faces.MAN9, Faces.MAN9: None,
+            Faces.PIN1: Faces.PIN2, Faces.PIN2: Faces.PIN3, Faces.PIN3: Faces.PIN4,
+            Faces.PIN4: Faces.PIN5, Faces.PIN5: Faces.PIN6, Faces.PIN6: Faces.PIN7,
+            Faces.PIN7: Faces.PIN8, Faces.PIN8: Faces.PIN9, Faces.PIN9: None,
+            Faces.SOU1: Faces.SOU2, Faces.SOU2: Faces.SOU3, Faces.SOU3: Faces.SOU4,
+            Faces.SOU4: Faces.SOU5, Faces.SOU5: Faces.SOU6, Faces.SOU6: Faces.SOU7,
+            Faces.SOU7: Faces.SOU8, Faces.SOU8: Faces.SOU9, Faces.SOU9: None,
+            Faces.HAKU: None, Faces.HATSU: None, Faces.CHUN: None,
+            Faces.EAST: None, Faces.SOUTH: None, Faces.WEST: None, Faces.NORTH: None,
+            Faces.MAN5_AKA: Faces.MAN6, Faces.PIN5_AKA: Faces.PIN6, Faces.SOU5_AKA: Faces.SOU6,
+        }[self]
+
+    def pred(self):
+        return {
+            Faces.MAN1: None, Faces.MAN2: Faces.MAN1, Faces.MAN3: Faces.MAN2,
+            Faces.MAN4: Faces.MAN3, Faces.MAN5: Faces.MAN4, Faces.MAN6: Faces.MAN5,
+            Faces.MAN7: Faces.MAN6, Faces.MAN8: Faces.MAN7, Faces.MAN9: Faces.MAN8,
+            Faces.PIN1: None, Faces.PIN2: Faces.PIN1, Faces.PIN3: Faces.PIN2,
+            Faces.PIN4: Faces.PIN3, Faces.PIN5: Faces.PIN4, Faces.PIN6: Faces.PIN5,
+            Faces.PIN7: Faces.PIN6, Faces.PIN8: Faces.PIN7, Faces.PIN9: Faces.PIN8,
+            Faces.SOU1: None, Faces.SOU2: Faces.SOU1, Faces.SOU3: Faces.SOU2,
+            Faces.SOU4: Faces.SOU3, Faces.SOU5: Faces.SOU4, Faces.SOU6: Faces.SOU5,
+            Faces.SOU7: Faces.SOU6, Faces.SOU8: Faces.SOU7, Faces.SOU9: Faces.SOU8,
+            Faces.HAKU: None, Faces.HATSU: None, Faces.CHUN: None,
+            Faces.EAST: None, Faces.SOUTH: None, Faces.WEST: None, Faces.NORTH: None,
+            Faces.MAN5_AKA: Faces.MAN4, Faces.PIN5_AKA: Faces.PIN4, Faces.SOU5_AKA: Faces.SOU4,
+        }[self]
+
     def __str__(self):
         return {
             Faces.MAN1: "1 man", Faces.MAN2: "2 man", Faces.MAN3: "3 man", Faces.MAN4: "4 man",
@@ -112,3 +160,6 @@ class Tile():
 
     def __eq__(self, other):
         return self.uid == other.uid
+
+    def __hash__(self):
+        return hash(self.uid)

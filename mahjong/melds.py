@@ -65,8 +65,18 @@ class Meld:
     def is_added(self):
         return Mentsu.ADDED in self.variant
 
+    def __eq__(self, other):
+        return (
+            self.variant == other.variant
+            and tuple(self.tiles) == tuple(other.tiles)
+            and self.called_tile == other.called_tile
+            and self.called_player == other.called_player)
+
     def __str__(self):
         return str(self.variant)
 
     def __repr__(self):
         return f"Meld({self.variant=}, {self.tiles=}, {self.called_tile=}, {self.called_player=})"
+
+    def __hash__(self):
+        return hash((self.variant, tuple(self.tiles), self.called_tile, self.called_player))
