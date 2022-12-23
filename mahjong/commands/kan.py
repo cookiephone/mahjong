@@ -13,7 +13,7 @@ class CmdKan(Command):
         self.tiles = tiles
         self.called_player = called_player
 
-    def execute(self, state):
+    def __call__(self, state):
         called_tile = self.called_player.discards.pop()
         meld = Meld(
             variant=Mentsu.MINKAN,
@@ -33,7 +33,7 @@ class CmdAddedKan(Command):
         self.player = player
         self.tile = tile
 
-    def execute(self, state):
+    def __call__(self, state):
         for meld in self.player.called_melds:
             if Mentsu.MINKOU in meld.variant and meld.tiles[0].face == self.tile.face:
                 meld.into_added_kan(self.tile)

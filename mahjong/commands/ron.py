@@ -8,7 +8,7 @@ class CmdRon(Command):
         self.player = player
         self.called_player = called_player
 
-    def execute(self, state):
+    def __call__(self, state):
         pass
 
     def valid(self, state):

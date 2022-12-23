@@ -12,7 +12,7 @@ class CmdDiscard(Command):
         self.player = player
         self.tile = tile
 
-    def execute(self, state):
+    def __call__(self, state):
         self.player.hand.remove(self.tile)
         self.player.discards.append(self.tile)
         self._handle_kandora(state)

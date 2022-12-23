@@ -6,34 +6,12 @@ from mahjong.tiles import Faces
 
 class Hand:
 
-    def __init__(self, state):
-        self.wall = Wall(akadora=state.rule_context.aka_dora)
-        self.wall.construct(state.rng)
-        self.round_wind = None
-        self.honba = None
-        self.players = None
-        self.dealer = None
-        # TODO: remove once it is moved into command starthand
-        self.init_from_state(state)
-
-    # TODO: consider state to compute the correct config for the next hand
-    # TODO: this should be in command execution, not hand
-    def init_from_state(self, state):
-        self.round_wind = Faces.EAST
-        self.honba = 0
-        self.players = self._build_players(state)
-        self.dealer = self._compute_dealer()
-
-    # TODO: consider state to compute the correct config for the next hand
-    def _build_players(self, state):
-        players = []
-        for seat in [Seat.EAST, Seat.SOUTH, Seat.WEST, Seat.NORTH]:
-            player = Player(seat, state.rule_context.starting_points)
-            players.append(player)
-        return players
-
-    def _compute_dealer(self):
-        return next(player for player in self.players if player.seat == Seat.EAST)
+    def __init__(self, round_wind, honba, wall, players, dealer):
+        self.round_wind = round_wind
+        self.honba = honba
+        self.wall = wall
+        self.players = players
+        self.dealer = dealer
 
     def get_player(self, seat):
         for player in self.players:

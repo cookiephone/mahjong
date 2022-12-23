@@ -10,7 +10,7 @@ class CmdChii(Command):
         self.tiles = tiles
         self.called_player = called_player
 
-    def execute(self, state):
+    def __call__(self, state):
         called_tile = self.called_player.discards.pop()
         meld = Meld(
             variant=Mentsu.MINJUN,

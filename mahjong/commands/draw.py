@@ -8,7 +8,7 @@ class CmdDraw(Command):
         self.player = player
         self.deadwall = deadwall
 
-    def execute(self, state):
+    def __call__(self, state):
         tile = state.wall.draw(deadwall=self.deadwall)
         self.player.hand.append(tile)
 

@@ -7,7 +7,7 @@ class CmdKyuushuKyuuhai(Command):
         super().__init__("kyuushu kyuuhai")
         self.player = player
 
-    def execute(self, state):
+    def __call__(self, state):
         pass
 
     def valid(self, state):

@@ -6,30 +6,32 @@ from mahjong.commands.endhand import CmdEndHand
 from mahjong.utils import helpers
 
 
-def _handle_multi_ron(state, batch):
-    rule = state.rule_context.double_ron if len(
-        batch) == 2 else state.rule_context.triple_ron
+def _handle_multi_ron(state, ron_commands, rule):
     match rule:
         case "all":
-            return batch
+            return ron_commands
         case "bump":
-            target = batch[0].called_player
+            target = ron_commands[0].called_player
             bump_order = state.current_hand.bump_order(target)
-            return next(cmd for player in bump_order for cmd in batch if cmd.player == player)
+            for cmd in ron_commands:
+                for player in bump_order:
+                    if cmd.player == player:
+                        return [cmd]
         case "cancel":
             return [CmdEndHand()]
 
-
 def rule_ron_priority(state, batch):
     ron_commands = helpers.filter_commands_by_type(batch, CmdRon)
+    other_commands = helpers.filter_commands_by_type(batch, CmdRon, negative=True)
     match len(ron_commands):
-        case 0:
-            pass
-        case 1:
-            return ron_commands
-        case 2 | 3:
-            return _handle_multi_ron(state, ron_commands)
-
+        case 0 | 1:
+            return batch
+        case 2:
+            updated = _handle_multi_ron(state, ron_commands, state.rule_context.double_ron)
+            return other_commands + updated
+        case 3:
+            updated = _handle_multi_ron(state, ron_commands, state.rule_context.triple_ron)
+            return other_commands + updated
 
 def rule_pon_kan_priority(_, batch):
     pon_kan_commands = helpers.filter_commands_by_type(
@@ -37,7 +39,6 @@ def rule_pon_kan_priority(_, batch):
     if not pon_kan_commands:
         return batch
     return helpers.filter_commands_by_type(batch, CmdChii, negative=True)
-
 
 def filter_command_batch(state, batch):
     rules = [rule_ron_priority, rule_pon_kan_priority]

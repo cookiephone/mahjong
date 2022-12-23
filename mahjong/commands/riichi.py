@@ -7,7 +7,7 @@ class CmdRiichi(Command):
         super().__init__("riichi")
         self.player = player
 
-    def execute(self, state):
+    def __call__(self, state):
         pass
 
     def valid(self, state):

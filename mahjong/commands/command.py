@@ -10,7 +10,7 @@ class Command(ABC, InheritDecoratorMixin):
         self.name = name
 
     @abstractmethod
-    def execute(self, state):
+    def __call__(self, state):
         raise NotImplementedError
 
     @abstractmethod

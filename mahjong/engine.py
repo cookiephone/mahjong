@@ -14,5 +14,5 @@ class Engine:
     def submit(self, batch):
         batch = arbiter.filter_command_batch(self.gamestate, batch)
         for cmd in batch:
-            cmd.execute(self.gamestate)
+            cmd(self.gamestate)
         self.gamestate.history.append(batch)
