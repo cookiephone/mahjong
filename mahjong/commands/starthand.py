@@ -11,7 +11,6 @@ class CmdStartHand(Command):
     def __init__(self):
         super().__init__("start hand")
 
-    # TODO: consider state to compute the correct config for the next hand
     def __call__(self, state):
         wall = self._build_wall(state)
         players = self._build_players(state)
@@ -34,13 +33,16 @@ class CmdStartHand(Command):
         wall.construct(state.rng)
         return wall
 
-    # TODO: consider state to compute the correct config for the next hand
     @staticmethod
     def _build_players(state):
         players = []
-        for seat in [Seat.EAST, Seat.SOUTH, Seat.WEST, Seat.NORTH]:
-            player = Player(seat, state.rule_context.starting_points)
-            players.append(player)
+        if not state.hands:
+            seats = [Seat.EAST, Seat.SOUTH, Seat.WEST, Seat.NORTH]
+            return [Player(seat, state.rule_context.starting_points) for seat in seats]
+        # TODO: consider state to compute the correct config for the next hand
+        # e.g. rotate seats (seat.KAMICHA) if draw with dealer tenpai or dealer win
+        for player in state.current_hand.players:
+            players.append(Player(player.seat, player.points))
         return players
 
     @staticmethod

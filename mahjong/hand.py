@@ -1,9 +1,3 @@
-from mahjong.wall import Wall
-from mahjong.seats import Seat
-from mahjong.players import Player
-from mahjong.tiles import Faces
-
-
 class Hand:
 
     def __init__(self, round_wind, honba, wall, players, dealer):
