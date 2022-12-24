@@ -12,3 +12,4 @@ from mahjong.commands.kan import CmdKan, CmdAddedKan
 from mahjong.commands.riichi import CmdRiichi
 from mahjong.commands.ron import CmdRon
 from mahjong.commands.tsumo import CmdTsumo
+from mahjong.commands.options import CommandOptions

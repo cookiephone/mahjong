@@ -4,13 +4,16 @@ import make
 make.build_and_install(deps=False, extras=["dev"])
 
 from mahjong import Engine, GameState, Player, Meld, Mentsu
-from mahjong.commands import CmdStartHand
+from mahjong.commands import CmdStartHand, CommandOptions, CmdKan
 from mahjong.scoring import HandExplorer
 from mahjong.utils.parsing import tileset_from_string, tileset_to_string
 
 
 engine = Engine(seed=0)
 engine.submit([CmdStartHand()])
+
+options = CommandOptions(engine.gamestate.rule_context)
+print(options.options(CmdKan))
 
 """
 player = Player(None, 0)
