@@ -1,11 +1,11 @@
-from mahjong import game
+from mahjong.game import GameState
 from mahjong.commands import arbiter
 
 
 class Engine:
 
     def __init__(self, seed=None, ruleset="default"):
-        self.gamestate = game.gamestate(seed=seed, ruleset=ruleset)
+        self.gamestate = GameState(seed=seed, ruleset=ruleset)
 
     def commands(self):
         commands = []  # TODO build all potentially valid commands

@@ -30,7 +30,7 @@ class VisualContext(arcade.Window):
             tile_height=mock.height,
             tile_half_width = mock.width // 2,
             tile_half_height = mock.height // 2)
-        self.drawables = SimpleNamespace(scene=None, gui=None, buttons=None, sticks=None)
+        self.drawables = SimpleNamespace(tiles=None, gui=None, buttons=None, sticks=None)
         self.gui_camera = None
         self.state = SimpleNamespace(
             bottom=self._default_player_state("bottom"),
@@ -57,7 +57,7 @@ class VisualContext(arcade.Window):
             pstate.melds = [self._meld_as_state(meld, player) for meld in player.called_melds]
             # TODO: get riichi status/riichi-discard of player
             # TODO: (consider riichi discard called and rediscarded!)
-            pstate.riichi = None
+            pstate.riichi = math.nan
         dora_indicators = [str(face) for face in gamestate.current_hand.wall.dora_indicators]
         uradora_indicators = [str(face) for face in gamestate.current_hand.wall.uradora_indicators]
         ndora_revealed = gamestate.current_hand.wall.ndora_revealed
@@ -65,7 +65,7 @@ class VisualContext(arcade.Window):
         self.state.dora_indicators = dora_indicators[:ndora_revealed] + unrevealed
         self.state.uradora_indicators = uradora_indicators[:ndora_revealed] + unrevealed
         round_wind_str = str(gamestate.current_hand.round_wind).capitalize()
-        self.state.round = f"{round_wind_str} {len(gamestate.hands) % 4}"
+        self.state.round = f"{round_wind_str} {gamestate.round}"
         self.state.honba = gamestate.current_hand.honba
         self.state.tiles_remaining = gamestate.current_hand.wall.remaining
         self.need_update = True
@@ -78,23 +78,23 @@ class VisualContext(arcade.Window):
 
     def on_update(self, delta_time):
         if self.need_update:
-            self.drawables.scene.get_sprite_list("tiles").clear()
+            self.drawables.tiles.clear()
             self.drawables.gui.clear()
+            self.drawables.sticks.clear()
             self._update_scene()
             self._update_gui()
             self.need_update = False
 
     def on_draw(self):
         self.clear()
-        self.drawables.scene.draw()
+        self.drawables.tiles.draw()
         self.gui_camera.use()
         self.drawables.gui.draw()
         self.drawables.buttons.draw()
         self.drawables.sticks.draw()
 
     def _setup(self):
-        self.drawables.scene = arcade.Scene()
-        self.drawables.scene.add_sprite_list("tiles")
+        self.drawables.tiles = arcade.SpriteList()
         self.drawables.gui = DrawableList()
         self.drawables.buttons = DrawableList()
         self.drawables.sticks = DrawableList()
@@ -111,8 +111,8 @@ class VisualContext(arcade.Window):
                 "angle": rotation,
                 "filename": config.TILE_IMAGES[tile],
                 "scale": config.TILE_SCALING})
-        self.drawables.scene.add_sprite("tiles", background)
-        self.drawables.scene.add_sprite("tiles", face)
+        self.drawables.tiles.append(background)
+        self.drawables.tiles.append(face)
 
     def _make_button(self, *args, callback=None, **kwargs):
         button = Button(*args, **({"style": config.BUTTON_STYLE} | kwargs))
@@ -304,7 +304,7 @@ class VisualContext(arcade.Window):
                 offset=offset)
 
     def _add_riichi_stick(self, player):
-        if player.riichi is not None:
+        if not math.isnan(player.riichi):
             offset_x, offset_y, rotate = {
                 "bottom": (0, -90, False),
                 "right": (90, 0, True),
@@ -433,7 +433,7 @@ class VisualContext(arcade.Window):
             hand=["blank"] * 14,
             melds=[],
             draw="blank",
-            riichi=None)
+            riichi=math.nan)
 
     @staticmethod
     def _meld_as_state(called_meld, owner):

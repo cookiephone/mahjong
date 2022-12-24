@@ -12,20 +12,50 @@ class CmdStartHand(Command):
         super().__init__("start hand")
 
     def __call__(self, state):
-        wall = self._build_wall(state)
-        players = self._build_players(state)
-        dealer = self._compute_dealer(players)
-        hand = Hand(
-            round_wind=Faces.EAST,
-            honba=0,
-            wall=wall,
-            players=players,
-            dealer=dealer)
+        hand = CmdStartHand._make_hand(state)
         state.hands.append(hand)
         state.current_hand = hand
 
     def valid(self, state):
         return True  # TODO
+
+    @staticmethod
+    def _make_hand(state):
+        if not state.hands:
+            return CmdStartHand._make_initial_hand(state)
+        rotation = not CmdStartHand._is_renchan(state)
+        honba = state.current_hand.honba + 1
+        round_wind = state.current_hand.round_wind
+        if rotation:
+            honba = 0
+            if state.round == 4:
+                round_wind = round_wind.SHIMOCHA
+        wall = CmdStartHand._build_wall(state)
+        players = CmdStartHand._build_players(state, rotation)
+        dealer = CmdStartHand._compute_dealer(players)
+        return Hand(
+            round_wind=round_wind,
+            honba=honba,
+            wall=wall,
+            players=players,
+            dealer=dealer)
+
+    @staticmethod
+    def _make_initial_hand(state):
+        wall = CmdStartHand._build_wall(state)
+        seats = [Seat.EAST, Seat.SOUTH, Seat.WEST, Seat.NORTH]
+        players = [Player(seat, state.rule_context.starting_points) for seat in seats]
+        dealer = CmdStartHand._compute_dealer(players)
+        return Hand(
+            round_wind=Faces.EAST,
+            honba=0,
+            wall=wall,
+            players=players,
+            dealer=dealer)
+
+    @staticmethod
+    def _is_renchan(state):
+        return False  # TODO
 
     @staticmethod
     def _build_wall(state):
@@ -34,15 +64,11 @@ class CmdStartHand(Command):
         return wall
 
     @staticmethod
-    def _build_players(state):
+    def _build_players(state, rotation):
         players = []
-        if not state.hands:
-            seats = [Seat.EAST, Seat.SOUTH, Seat.WEST, Seat.NORTH]
-            return [Player(seat, state.rule_context.starting_points) for seat in seats]
-        # TODO: consider state to compute the correct config for the next hand
-        # e.g. rotate seats (seat.KAMICHA) if draw with dealer tenpai or dealer win
         for player in state.current_hand.players:
-            players.append(Player(player.seat, player.points))
+            seat = player.seat.KAMICHA if rotation else player.seat
+            players.append(Player(seat, player.points))
         return players
 
     @staticmethod

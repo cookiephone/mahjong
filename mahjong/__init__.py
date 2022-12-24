@@ -1,6 +1,6 @@
 from mahjong import dora
 from mahjong import rules
-from mahjong import game
+from mahjong.game import GameState
 from mahjong.engine import Engine
 from mahjong.hand import Hand
 from mahjong.melds import Meld, Mentsu

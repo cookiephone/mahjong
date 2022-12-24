@@ -55,3 +55,10 @@ visual_context.state.right.riichi = 1
 visual_context.state.top.riichi = 8
 visual_context.state.left.riichi = 12
 visual_context.need_update = True
+
+import time
+time.sleep(15)
+print("continue!")
+
+engine.submit([CmdStartHand()])
+visual_context.set_gamestate(engine.gamestate)
