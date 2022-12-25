@@ -44,6 +44,4 @@ def filter_command_batch(state, batch):
     rules = [rule_ron_priority, rule_pon_kan_priority]
     for rule in rules:
         batch = rule(state, batch)
-    if len(batch) > 1:
-        raise ValueError(f"More than one winning command in command batch: {batch}")
-    return batch[0]
+    return batch

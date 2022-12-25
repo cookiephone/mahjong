@@ -12,6 +12,7 @@ class Engine:
         return [cmd for cmd in commands if cmd.valid(self.gamestate)]
 
     def submit(self, batch):
-        winning_command = arbiter.filter_command_batch(self.gamestate, batch)
-        winning_command(self.gamestate)
+        batch = arbiter.filter_command_batch(self.gamestate, batch)
+        for command in batch:
+            command(self.gamestate)
         self.gamestate.history.append(batch)
