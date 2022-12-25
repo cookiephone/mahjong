@@ -11,7 +11,7 @@ class CmdKanGeneric(Command):
     @staticmethod
     def _handle_suukaikan(state):
         if state.rule_context.suukaikan and not state.rule_context.suukaikan_after_discard:
-            if helpers.filter_commands_by_type(state.history[-1], (CmdKan, CmdAddedKan)):
+            if helpers.filter_commands_by_type(state.last_command_batch, (CmdKan, CmdAddedKan)):
                 state.current_hand.abort = True
 
 

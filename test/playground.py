@@ -13,7 +13,7 @@ engine = Engine(seed=0)
 engine.submit([CmdStartHand()])
 
 options = CommandOptions(engine.gamestate.rule_context)
-print(options.options(CmdKan))
+print(options(CmdKan))
 
 """
 player = Player(None, 0)

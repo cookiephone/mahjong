@@ -23,6 +23,10 @@ class GameState:
         self.current_hand=None
 
     @property
+    def last_command_batch(self):
+        return self.history[-1]
+
+    @property
     def round(self):
         n_non_renchan = len([hand for hand in self.hands if hand.honba == 0])
         return 1 + (n_non_renchan - 1) % 4

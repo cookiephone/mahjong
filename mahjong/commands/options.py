@@ -62,5 +62,5 @@ class CommandOptions:
         if rule_context.suucha_riichi:
             self._options[CmdRiichi].add(CmdEndHand)
 
-    def options(self, cmd_type):
+    def __call__(self, cmd_type):
         return self._options[cmd_type]
