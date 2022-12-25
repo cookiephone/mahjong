@@ -1,19 +1,35 @@
 from mahjong.commands.command import Command
 from mahjong.melds import Meld, Mentsu
+from mahjong.utils import helpers
 
 
-# TODO: maybe superclass for kan calls, then easier isinstance check in discard command for kandora
-# TODO: handle suukaikan
+class CmdKanGeneric(Command):
 
-class CmdKan(Command):
+    def __call__(self, state):
+        self._handle_suukaikan(state)
 
-    def __init__(self, player, tiles, called_player):
+    @staticmethod
+    def _handle_suukaikan(state):
+        if state.rule_context.suukaikan and not state.rule_context.suukaikan_after_discard:
+            if helpers.filter_commands_by_type(state.history[-1], (CmdKan, CmdAddedKan)):
+                state.current_hand.abort = True
+
+
+class CmdKan(CmdKanGeneric):
+
+    def __init__(self, player, tiles, called_player=None):
         super().__init__("kan (called)")
         self.player = player
         self.tiles = tiles
         self.called_player = called_player
 
     def __call__(self, state):
+        if self.called_player:
+            self._call_open()
+        else:
+            self._call_closed()
+
+    def _call_open(self):
         called_tile = self.called_player.discards.pop()
         meld = Meld(
             variant=Mentsu.MINKAN,
@@ -22,11 +38,17 @@ class CmdKan(Command):
             called_player=self.called_player)
         self.player.called_melds.append(meld)
 
+    def _call_closed(self):
+        meld = Meld(
+            variant=Mentsu.ANKAN,
+            tiles=self.tiles)
+        self.player.called_melds.append(meld)
+
     def valid(self, state):
         return True  # TODO
 
 
-class CmdAddedKan(Command):
+class CmdAddedKan(CmdKanGeneric):
 
     def __init__(self, player, tile):
         super().__init__("kan (added)")

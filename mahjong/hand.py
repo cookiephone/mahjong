@@ -6,6 +6,7 @@ class Hand:
         self.wall = wall
         self.players = players
         self.dealer = dealer
+        self.abort = False
 
     def get_player(self, seat):
         for player in self.players:

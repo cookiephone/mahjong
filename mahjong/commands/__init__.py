@@ -8,7 +8,7 @@ from mahjong.commands.kyuushukyuuhai import CmdKyuushuKyuuhai
 from mahjong.commands.draw import CmdDraw
 from mahjong.commands.chii import CmdChii
 from mahjong.commands.pon import CmdPon
-from mahjong.commands.kan import CmdKan, CmdAddedKan
+from mahjong.commands.kan import CmdKanGeneric, CmdKan, CmdAddedKan
 from mahjong.commands.riichi import CmdRiichi
 from mahjong.commands.ron import CmdRon
 from mahjong.commands.tsumo import CmdTsumo
