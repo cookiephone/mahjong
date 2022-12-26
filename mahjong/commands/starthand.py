@@ -1,3 +1,4 @@
+from functools import cache
 from mahjong.commands.command import Command
 from mahjong.hand import Hand
 from mahjong.seats import Seat
@@ -23,17 +24,11 @@ class CmdStartHand(Command):
     def _make_hand(state):
         if not state.hands:
             return CmdStartHand._make_initial_hand(state)
-        rotation = not CmdStartHand._is_renchan(state)
-        honba = state.current_hand.honba + 1
-        riichi_sticks = state.current_hand.riichi_sticks
-        round_wind = state.current_hand.round_wind
-        if rotation:
-            honba = 0  # TODO: this is wrong, honba can apply without rotation, fix!
-            riichi_sticks = 0  # TODO does nothing
-            if state.round == 4:
-                round_wind = round_wind.SHIMOCHA
+        round_wind = CmdStartHand._compute_round_wind(state)
+        honba = CmdStartHand._compute_honba(state)
+        riichi_sticks = CmdStartHand._compute_riichi_sticks(state)
         wall = CmdStartHand._build_wall(state)
-        players = CmdStartHand._build_players(state, rotation)
+        players = CmdStartHand._build_players(state)
         dealer = CmdStartHand._compute_dealer(players)
         return Hand(
             round_wind=round_wind,
@@ -58,8 +53,35 @@ class CmdStartHand(Command):
             dealer=dealer)
 
     @staticmethod
-    def _is_renchan(state):
+    def _compute_round_wind(state):
+        if CmdStartHand._is_rotation(state) and state.round == 4:
+            return state.current_hand.round_wind.SHIMOCHA
+        return state.current_hand.round_wind
+
+    @staticmethod
+    def _compute_riichi_sticks(state):
+        if CmdStartHand._is_riichi_stick_reset(state):
+            return 0
+        return state.current_hand.riichi_sticks
+
+    @staticmethod
+    def _compute_honba(state):
+        if CmdStartHand._is_honba_reset(state):
+            return 0
+        return state.current_hand.honba + 1
+
+    @cache
+    @staticmethod
+    def _is_rotation(state):
         return False  # TODO
+
+    @staticmethod
+    def _is_honba_reset(state):
+        return False  # TODO
+
+    @staticmethod
+    def _is_riichi_stick_reset(state):
+        return False # TODO
 
     @staticmethod
     def _build_wall(state):
@@ -68,10 +90,10 @@ class CmdStartHand(Command):
         return wall
 
     @staticmethod
-    def _build_players(state, rotation):
+    def _build_players(state):
         players = []
         for player in state.current_hand.players:
-            seat = player.seat.KAMICHA if rotation else player.seat
+            seat = player.seat.KAMICHA if CmdStartHand._is_rotation(state) else player.seat
             players.append(Player(seat, player.points))
         return players
 
