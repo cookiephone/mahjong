@@ -25,9 +25,11 @@ class CmdStartHand(Command):
             return CmdStartHand._make_initial_hand(state)
         rotation = not CmdStartHand._is_renchan(state)
         honba = state.current_hand.honba + 1
+        riichi_sticks = state.current_hand.riichi_sticks
         round_wind = state.current_hand.round_wind
         if rotation:
-            honba = 0
+            honba = 0  # TODO: this is wrong, honba can apply without rotation, fix!
+            riichi_sticks = 0  # TODO does nothing
             if state.round == 4:
                 round_wind = round_wind.SHIMOCHA
         wall = CmdStartHand._build_wall(state)
@@ -36,6 +38,7 @@ class CmdStartHand(Command):
         return Hand(
             round_wind=round_wind,
             honba=honba,
+            riichi_sticks=riichi_sticks,
             wall=wall,
             players=players,
             dealer=dealer)
@@ -49,6 +52,7 @@ class CmdStartHand(Command):
         return Hand(
             round_wind=Faces.EAST,
             honba=0,
+            riichi_sticks=0,
             wall=wall,
             players=players,
             dealer=dealer)

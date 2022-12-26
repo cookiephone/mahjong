@@ -1,8 +1,9 @@
 class Hand:
 
-    def __init__(self, round_wind, honba, wall, players, dealer):
+    def __init__(self, round_wind, honba, riichi_sticks, wall, players, dealer):
         self.round_wind = round_wind
         self.honba = honba
+        self.riichi_sticks = riichi_sticks
         self.wall = wall
         self.players = players
         self.dealer = dealer

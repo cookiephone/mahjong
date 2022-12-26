@@ -88,11 +88,14 @@ class Seat(metaclass=SeatType):
                 raise ValueError(f"cannot get {seat_type} seat of an absolute seat") from exception
         return super().__getattribute__(name)
 
-    def __str__(self):
-        return self.name.lower()
-
     def is_absolute(self):
         return self.name in ABSOLUTE_SEATS
 
     def relative(self, other):
         return getattr(self.__class__, SEAT_PAIRINGS_INV[self.name][other.name])
+
+    def __str__(self):
+        return self.name.lower()
+
+    def __call__(self, other):
+        return getattr(self, other.name)

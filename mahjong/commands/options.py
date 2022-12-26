@@ -10,6 +10,7 @@ from mahjong.commands.kan import CmdKan, CmdAddedKan
 from mahjong.commands.riichi import CmdRiichi
 from mahjong.commands.ron import CmdRon
 from mahjong.commands.tsumo import CmdTsumo
+from mahjong.seats import Seat
 
 
 # TODO: add info to options about for which player a command is enabled
@@ -20,47 +21,47 @@ class CommandOptions:
             CmdEndGame:
                 set(),
             CmdStartHand: {
-                CmdDraw},
+                (CmdDraw, None)},
             CmdEndHand: {
-                CmdEndGame,
-                CmdStartHand},
+                (CmdEndGame, None),
+                (CmdStartHand, None)},
             CmdDraw: {
-                CmdKyuushuKyuuhai,
-                CmdDiscard,
-                CmdTsumo,
-                CmdRiichi,
-                CmdAddedKan},
+                (CmdKyuushuKyuuhai, (Seat.SELF,)),
+                (CmdDiscard, (Seat.SELF,)),
+                (CmdTsumo, (Seat.SELF,)),
+                (CmdRiichi, (Seat.SELF,)),
+                (CmdAddedKan, (Seat.SELF,))},
             CmdDiscard: {
-                CmdEndHand,
-                CmdDraw,
-                CmdRon,
-                CmdChii,
-                CmdKan,
-                CmdPon},
+                (CmdEndHand, None),
+                (CmdDraw, (Seat.SHIMOCHA,)),
+                (CmdRon, (Seat.SHIMOCHA, Seat.TOIMEN, Seat.KAMICHA)),
+                (CmdChii, (Seat.SHIMOCHA,)),
+                (CmdKan, (Seat.SHIMOCHA, Seat.TOIMEN, Seat.KAMICHA)),
+                (CmdPon, (Seat.SHIMOCHA, Seat.TOIMEN, Seat.KAMICHA))},
             CmdChii: {
-                CmdDiscard},
+                (CmdDiscard, (Seat.SELF,))},
             CmdPon: {
-                CmdDiscard},
+                (CmdDiscard, (Seat.SELF,))},
             CmdKan: {
-                CmdEndHand,
-                CmdDiscard},
+                (CmdEndHand, None),
+                (CmdDraw, (Seat.SELF,))},
             CmdAddedKan: {
-                CmdEndHand,
-                CmdDiscard,
-                CmdRon},
+                (CmdEndHand, None),
+                (CmdDraw, (Seat.SELF,)),
+                (CmdRon, (Seat.SHIMOCHA, Seat.TOIMEN, Seat.KAMICHA))},
             CmdRiichi: {
-                CmdDiscard},
+                (CmdDiscard, (Seat.SELF,))},
             CmdRon: {
-                CmdEndHand},
+                (CmdEndHand, None)},
             CmdTsumo: {
-                CmdEndHand},
+                (CmdEndHand, None)},
             CmdKyuushuKyuuhai: {
-                CmdEndHand}
+                (CmdEndHand, None)}
         }
         if rule_context.kokushi_chankan:
-            self._options[CmdKan].add(CmdRon)
+            self._options[CmdKan].add((CmdRon, (Seat.SHIMOCHA, Seat.TOIMEN, Seat.KAMICHA)))
         if rule_context.suucha_riichi:
-            self._options[CmdRiichi].add(CmdEndHand)
+            self._options[CmdRiichi].add((CmdEndHand, None))
 
     def __call__(self, cmd_type):
         return self._options[cmd_type]
