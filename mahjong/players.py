@@ -1,4 +1,5 @@
 from mahjong.melds import Mentsu
+from mahjong.seats import Seat
 
 
 class Player:
@@ -9,6 +10,9 @@ class Player:
         self.discards = []
         self.hand = []
         self.called_melds = []
+
+    def is_dealer(self):
+        return self.seat == Seat.EAST
 
     def drawn_tile(self):
         total_tiles = len(self.hand) + sum(len(meld.tiles) for meld in self.called_melds)

@@ -1,3 +1,7 @@
+from types import SimpleNamespace
+from mahjong.seats import Seat
+
+
 class Hand:
 
     def __init__(self, round_wind, honba, riichi_sticks, wall, players, dealer):
@@ -8,6 +12,19 @@ class Hand:
         self.players = players
         self.dealer = dealer
         self.abort = False
+        self.result = None
+        # TODO: dummy result, should be set by endhand command later
+        self.result = SimpleNamespace(
+            abortive_draw=False,
+            exhaustive_draw=False,
+            winner=self.players[1],
+            tenpai={
+                Seat.EAST: False,
+                Seat.SOUTH: False,
+                Seat.WEST: False,
+                Seat.NORTH: False,
+            }
+        )
 
     def get_player(self, seat):
         for player in self.players:

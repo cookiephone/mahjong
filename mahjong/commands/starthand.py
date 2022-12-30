@@ -73,15 +73,30 @@ class CmdStartHand(Command):
     @cache
     @staticmethod
     def _is_rotation(state):
-        return False  # TODO
+        return (
+            not CmdStartHand._is_dealer_win(state)
+            or (
+                state.current_hand.result.exhaustive_draw
+                and not state.current_hand.result.tenpai[Seat.East]
+            )
+        )
 
     @staticmethod
     def _is_honba_reset(state):
-        return False  # TODO
+        return (
+            not CmdStartHand._is_dealer_win(state)
+            and not state.current_hand.result.exhaustive_draw
+            and not state.current_hand.result.aboritve_draw
+        )
 
     @staticmethod
     def _is_riichi_stick_reset(state):
-        return False # TODO
+        return state.current_hand.result.winner is not None
+
+    @cache
+    @staticmethod
+    def _is_dealer_win(state):
+        return state.current_hand.result.winner and state.current_hand.result.winner.is_dealer()
 
     @staticmethod
     def _build_wall(state):
