@@ -1,19 +1,24 @@
 from types import SimpleNamespace
+from typing import Any
+from dataclasses import dataclass
 from mahjong.seats import Seat
 
 
+@dataclass
 class Hand:
 
-    def __init__(self, round_wind, honba, riichi_sticks, wall, players, dealer):
-        self.round_wind = round_wind
-        self.honba = honba
-        self.riichi_sticks = riichi_sticks
-        self.wall = wall
-        self.players = players
-        self.dealer = dealer
-        self.abort = False
-        self.result = None
-        # TODO: dummy result, should be set by endhand command later
+    round_wind: Any
+    honba: Any
+    riichi_sticks: Any
+    wall: Any
+    players: Any
+    dealer: Any
+    abort: Any = False
+    result: Any = None
+
+
+    # TODO: dummy result, should be set by endhand command later
+    def __post_init__(self):
         self.result = SimpleNamespace(
             abortive_draw=False,
             exhaustive_draw=False,

@@ -1,4 +1,3 @@
-from functools import cache
 from mahjong.commands.command import Command
 from mahjong.hand import Hand
 from mahjong.seats import Seat
