@@ -406,6 +406,14 @@ class VisualContext(arcade.Window):
         manager.enable()
         manager.add(arcade.gui.UIAnchorWidget(child=box, anchor_x="left", anchor_y="bottom",
                                               align_x=82, align_y=110))
+        submission_button = self._make_button(
+            text="submit commands",
+            width=168,
+            height=35,
+            callback=self._generic_button_callback)
+        manager.add(arcade.gui.UIAnchorWidget(child=submission_button, anchor_x="left",
+                                              anchor_y="bottom", align_x=86, align_y=157))
+        manager.add(submission_button)
         return [manager]
 
     def _make_gui_buttons(self):
