@@ -47,6 +47,10 @@ class CmdKan(CmdKanGeneric):
     def valid(self, state):
         return True  # TODO
 
+    @staticmethod
+    def build(positions):
+        return []  # TODO
+
 
 class CmdAddedKan(CmdKanGeneric):
 
@@ -62,3 +66,7 @@ class CmdAddedKan(CmdKanGeneric):
 
     def valid(self, state):
         return True  # TODO
+
+    @staticmethod
+    def build(positions):
+        return []  # TODO

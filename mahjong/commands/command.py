@@ -17,3 +17,8 @@ class Command(ABC, InheritDecoratorMixin):
     @InheritDecoratorMixin.inheritable_decorator(cache)
     def valid(self, state):
         raise NotImplementedError
+
+    @staticmethod
+    @abstractmethod
+    def build(positions):
+        raise NotImplementedError

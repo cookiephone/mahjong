@@ -20,6 +20,10 @@ class CmdStartHand(Command):
         return True  # TODO
 
     @staticmethod
+    def build(positions):
+        return []  # TODO
+
+    @staticmethod
     def _make_hand(state):
         if not state.hands:
             return CmdStartHand._make_initial_hand(state)

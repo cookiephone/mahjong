@@ -12,8 +12,8 @@ class Engine:
     def commands(self):
         commands = []
         options = set.union(self.options(cmd) for cmd in self.gamestate.last_command_batch)
-        # TODO build all potentially valid commands using CommandOptions
-        # for option in options: ...
+        for cmdtype, positions in options:
+            commands.extend(cmdtype.build(positions))
         return [cmd for cmd in commands if cmd.valid(self.gamestate)]
 
     def submit(self, batch):

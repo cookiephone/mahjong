@@ -21,3 +21,7 @@ class CmdPon(Command):
 
     def valid(self, state):
         return True  # TODO
+
+    @staticmethod
+    def build(positions):
+        return []  # TODO

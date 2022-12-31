@@ -23,6 +23,10 @@ class CmdDiscard(Command):
         return True  # TODO
 
     @staticmethod
+    def build(positions):
+        return []  # TODO
+
+    @staticmethod
     def _handle_kandora(state):
         if state.rule_context.kan_dora:
             if helpers.filter_commands_by_type(state.last_command_batch, (CmdKan, CmdAddedKan)):
