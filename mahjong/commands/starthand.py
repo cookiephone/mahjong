@@ -70,7 +70,6 @@ class CmdStartHand(Command):
             return 0
         return state.current_hand.honba + 1
 
-    @cache
     @staticmethod
     def _is_rotation(state):
         return (
@@ -86,14 +85,13 @@ class CmdStartHand(Command):
         return (
             not CmdStartHand._is_dealer_win(state)
             and not state.current_hand.result.exhaustive_draw
-            and not state.current_hand.result.aboritve_draw
+            and not state.current_hand.result.abortive_draw
         )
 
     @staticmethod
     def _is_riichi_stick_reset(state):
         return state.current_hand.result.winner is not None
 
-    @cache
     @staticmethod
     def _is_dealer_win(state):
         return state.current_hand.result.winner and state.current_hand.result.winner.is_dealer()
