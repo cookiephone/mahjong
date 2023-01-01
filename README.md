@@ -1,4 +1,4 @@
-![lint](https://github.com/cookiephone/mahjong/actions/workflows/ci.yml/badge.svg)
+![lint](https://github.com/cookiephone/mahjong/actions/workflows/ci-cd.yml/badge.svg)
 
-### Riichi Mahjong library written in Python
-Heavy WIP!
+### Riichi Mahjong Library written in Python
+Heavy WIP
