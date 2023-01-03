@@ -1,5 +1,6 @@
 from mahjong.commands.command import Command
-
+from mahjong.commands.kan import CmdKan, CmdAddedKan
+from mahjong.utils import helpers
 
 class CmdDraw(Command):
 
@@ -17,4 +18,11 @@ class CmdDraw(Command):
 
     @staticmethod
     def build(state, positions):
-        return []  # TODO
+        commands = []
+        for pos in positions:
+            seat = state.last_active_seat(pos)
+            player = state.current_hand.get_player(seat)
+            deadwall = bool(helpers.filter_commands_by_type(state.last_command_batch,
+                                                            (CmdKan, CmdAddedKan)))
+            commands.append(CmdDraw(player, deadwall=deadwall))
+        return commands

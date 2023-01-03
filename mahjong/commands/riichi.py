@@ -15,4 +15,9 @@ class CmdRiichi(Command):
 
     @staticmethod
     def build(state, positions):
-        return []  # TODO
+        commands = []
+        for pos in positions:
+            seat = state.last_active_seat(pos)
+            player = state.current_hand.get_player(seat)
+            commands.append(CmdRiichi(player))
+        return commands

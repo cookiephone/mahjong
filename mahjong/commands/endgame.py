@@ -14,4 +14,4 @@ class CmdEndGame(Command):
 
     @staticmethod
     def build(state, positions):
-        return []  # TODO
+        return [CmdEndGame()]

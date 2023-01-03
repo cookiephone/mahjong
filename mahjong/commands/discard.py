@@ -24,7 +24,12 @@ class CmdDiscard(Command):
 
     @staticmethod
     def build(state, positions):
-        return []  # TODO
+        commands = []
+        for pos in positions:
+            seat = state.last_active_seat(pos)
+            player = state.current_hand.get_player(seat)
+            commands.extend(CmdDiscard(player, tile) for tile in player.hand)
+        return commands
 
     @staticmethod
     def _handle_kandora(state):

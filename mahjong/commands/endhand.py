@@ -14,4 +14,4 @@ class CmdEndHand(Command):
 
     @staticmethod
     def build(state, positions):
-        return []  # TODO
+        return [CmdEndHand()]
