@@ -10,10 +10,11 @@ from mahjong.utils.parsing import tileset_from_string, tileset_to_string
 
 
 engine = Engine(seed=0)
-engine.submit([CmdStartHand()])
+cmds = engine.commands()
+engine.submit(cmds)
 
-options = CommandOptions(engine.gamestate.rule_context)
-print(options(CmdKan))
+#options = CommandOptions(engine.gamestate.rule_context)
+#print(options(CmdKan))
 
 """
 player = Player(None, 0)

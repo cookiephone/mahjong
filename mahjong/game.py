@@ -24,9 +24,19 @@ class GameState:
 
     @property
     def last_command_batch(self):
-        return self.history[-1]
+        try:
+            return self.history[-1]
+        except IndexError:
+            return None
 
     @property
     def round(self):
         n_non_renchan = len([hand for hand in self.hands if hand.honba == 0])
         return 1 + (n_non_renchan - 1) % 4
+
+    @property
+    def last_active_seat(self):
+        try:
+            return self.history[-1][0].player.seat
+        except (IndexError, AttributeError):
+            return None

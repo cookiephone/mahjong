@@ -13,10 +13,10 @@ from mahjong.commands.tsumo import CmdTsumo
 from mahjong.seats import Seat
 
 
-# TODO: add info to options about for which player a command is enabled
 class CommandOptions:
 
     def __init__(self, rule_context):
+        self._initial_options = {(CmdStartHand, None)}
         self._options = {
             CmdEndGame:
                 set(),
@@ -62,6 +62,12 @@ class CommandOptions:
             self._options[CmdKan].add((CmdRon, (Seat.SHIMOCHA, Seat.TOIMEN, Seat.KAMICHA)))
         if rule_context.suucha_riichi:
             self._options[CmdRiichi].add((CmdEndHand, None))
+
+    def from_command_batch(self, batch):
+        try:
+            return set().union(*(self(type(cmd)) for cmd in batch))
+        except TypeError:
+            return self._initial_options
 
     def __call__(self, cmd_type):
         return self._options[cmd_type]

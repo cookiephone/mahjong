@@ -23,5 +23,5 @@ class CmdPon(Command):
         return True  # TODO
 
     @staticmethod
-    def build(positions):
+    def build(state, positions):
         return []  # TODO
