@@ -6,11 +6,15 @@ class Mentsu(Flag):
     CHII = auto()
     PON = auto()
     KAN = auto()
+    SPECIAL = auto()
 
     OPEN = auto()
     CLOSED = auto()
 
     ADDED = auto()
+
+    PAIR_SPECIAL = auto()
+    KOKUSHI_SPECIAL = auto()
 
     ANJUN = CHII | CLOSED
     MINJUN = CHII | OPEN
@@ -22,6 +26,9 @@ class Mentsu(Flag):
     MINKAN = KAN | OPEN
     SHOUMINKAN = KAN | OPEN | ADDED
 
+    PAIR = PAIR_SPECIAL | CLOSED
+    KOKUSHI = KOKUSHI_SPECIAL | CLOSED
+
     def __str__(self):
         return {
             Mentsu.ANJUN: "chii (closed)",
@@ -31,6 +38,8 @@ class Mentsu(Flag):
             Mentsu.ANKAN: "kan (closed)",
             Mentsu.MINKAN: "kan (open)",
             Mentsu.SHOUMINKAN: "kan (open, added)",
+            Mentsu.PAIR: "pair",
+            Mentsu.KOKUSHI: "kokushi",
         }[self]
 
 
@@ -64,6 +73,12 @@ class Meld:
 
     def is_added(self):
         return Mentsu.ADDED in self.variant
+
+    def is_pair(self):
+        return Mentsu.PAIR in self.variant
+
+    def is_kokushi(self):
+        return Mentsu.KOKUSHI in self.variant
 
     def __eq__(self, other):
         return (
